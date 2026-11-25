@@ -1,0 +1,223 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Global safety net: default-deny all unmatched paths
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Reusable Security Primitives ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isValidTimestamp(ts) {
+      return ts is timestamp && ts <= request.time;
+    }
+
+    // --- Entity Validation Helpers ---
+    function isValidUserWorkspace(data, userId) {
+      return data.userId is string && data.userId == userId && data.userId.size() <= 128 &&
+             data.initialDataSeeded is bool &&
+             data.categoriesInitialized is bool &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidLoan(data) {
+      return data.title is string && data.title.size() >= 1 && data.title.size() <= 120 &&
+             data.source is string && data.source.size() >= 1 && data.source.size() <= 100 &&
+             data.amount is int && data.amount >= 1 && data.amount <= 1000000000000 &&
+             data.totalCount is int && data.totalCount >= 1 && data.totalCount <= 360 &&
+             data.startDay is int && data.startDay >= 1 && data.startDay <= 31 &&
+             data.startMonth is int && data.startMonth >= 1 && data.startMonth <= 12 &&
+             data.startYear is int && data.startYear >= 1350 && data.startYear <= 1500 &&
+             data.card is string && data.card.size() <= 64 &&
+             data.paidIndices is list && data.paidIndices.size() <= 360 &&
+             (data.paidIndices.size() == 0 || data.paidIndices[0] is int) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidAccount(data) {
+      return data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.initialBalance is int && data.initialBalance >= -1000000000000 && data.initialBalance <= 1000000000000 &&
+             data.cardNumber is string && data.cardNumber.size() <= 64 &&
+             data.color is string && data.color.size() >= 4 && data.color.size() <= 16 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidCategory(data) {
+      return data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.type is string && (data.type == 'expense' || data.type == 'income') &&
+             data.emoji is string && data.emoji.size() >= 1 && data.emoji.size() <= 16 &&
+             data.color is string && data.color.size() >= 4 && data.color.size() <= 16 &&
+             data.subcategories is list && data.subcategories.size() <= 50 &&
+             (data.subcategories.size() == 0 || data.subcategories[0] is string) &&
+             data.debtCategory is bool &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidTransaction(data) {
+      return data.type is string && (data.type == 'expense' || data.type == 'income' || data.type == 'transfer') &&
+             data.amount is int && data.amount >= 1 && data.amount <= 1000000000000 &&
+             data.year is int && data.year >= 1350 && data.year <= 1500 &&
+             data.month is int && data.month >= 1 && data.month <= 12 &&
+             data.day is int && data.day >= 1 && data.day <= 31 &&
+             data.subcategory is string && data.subcategory.size() <= 100 &&
+             data.note is string && data.note.size() <= 300 &&
+             (!('accountId' in data) || data.accountId == null || (data.accountId is string && data.accountId.size() >= 1 && data.accountId.size() <= 128)) &&
+             (!('fromAccountId' in data) || data.fromAccountId == null || (data.fromAccountId is string && data.fromAccountId.size() >= 1 && data.fromAccountId.size() <= 128)) &&
+             (!('toAccountId' in data) || data.toAccountId == null || (data.toAccountId is string && data.toAccountId.size() >= 1 && data.toAccountId.size() <= 128)) &&
+             (!('categoryId' in data) || data.categoryId == null || (data.categoryId is string && data.categoryId.size() >= 1 && data.categoryId.size() <= 128)) &&
+             (!('personId' in data) || data.personId == null || (data.personId is string && data.personId.size() >= 1 && data.personId.size() <= 128)) &&
+             (!('linkedLoanId' in data) || data.linkedLoanId == null || (data.linkedLoanId is string && data.linkedLoanId.size() >= 1 && data.linkedLoanId.size() <= 128)) &&
+             (!('linkedInstallmentIndex' in data) || data.linkedInstallmentIndex == null || (data.linkedInstallmentIndex is int && data.linkedInstallmentIndex >= 0 && data.linkedInstallmentIndex <= 360)) &&
+             (
+               (data.type == 'transfer' &&
+                'fromAccountId' in data && data.fromAccountId is string && data.fromAccountId.size() >= 1 &&
+                'toAccountId' in data && data.toAccountId is string && data.toAccountId.size() >= 1 &&
+                data.fromAccountId != data.toAccountId) ||
+               ((data.type == 'expense' || data.type == 'income') &&
+                'accountId' in data && data.accountId is string && data.accountId.size() >= 1 &&
+                'categoryId' in data && data.categoryId is string && data.categoryId.size() >= 1)
+             ) &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    function isValidPerson(data) {
+      return data.name is string && data.name.size() >= 1 && data.name.size() <= 100 &&
+             data.note is string && data.note.size() <= 300 &&
+             isValidTimestamp(data.createdAt) &&
+             isValidTimestamp(data.updatedAt);
+    }
+
+    // --- User Workspace & Private Subcollections ---
+    match /users/{userId} {
+      allow get: if isOwner(userId) && isValidId(userId);
+      allow list: if false;
+      allow create: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       incoming().keys().hasAll(['userId', 'initialDataSeeded', 'categoriesInitialized', 'createdAt', 'updatedAt']) &&
+                       incoming().keys().hasOnly(['userId', 'initialDataSeeded', 'categoriesInitialized', 'createdAt', 'updatedAt']) &&
+                       isValidUserWorkspace(incoming(), userId);
+      allow update: if isOwner(userId) &&
+                       isValidId(userId) &&
+                       isValidUserWorkspace(incoming(), userId) &&
+                       incoming().userId == existing().userId &&
+                       incoming().createdAt == existing().createdAt &&
+                       incoming().diff(existing()).affectedKeys().hasOnly(['initialDataSeeded', 'categoriesInitialized', 'updatedAt']);
+      allow delete: if isOwner(userId) && isValidId(userId);
+
+      match /loans/{loanId} {
+        allow get: if isOwner(userId) && isValidId(loanId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(loanId) &&
+                         incoming().keys().hasAll(['title', 'source', 'amount', 'totalCount', 'startDay', 'startMonth', 'startYear', 'card', 'paidIndices', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['title', 'source', 'amount', 'totalCount', 'startDay', 'startMonth', 'startYear', 'card', 'paidIndices', 'createdAt', 'updatedAt']) &&
+                         isValidLoan(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(loanId) &&
+                         isValidLoan(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           incoming().diff(existing()).affectedKeys().hasOnly(['paidIndices', 'updatedAt']) ||
+                           incoming().diff(existing()).affectedKeys().hasOnly(['title', 'source', 'amount', 'totalCount', 'startDay', 'startMonth', 'startYear', 'card', 'paidIndices', 'updatedAt'])
+                         );
+        allow delete: if isOwner(userId) && isValidId(loanId);
+      }
+
+      match /accounts/{accountId} {
+        allow get: if isOwner(userId) && isValidId(accountId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(accountId) &&
+                         incoming().keys().hasAll(['name', 'initialBalance', 'cardNumber', 'color', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['name', 'initialBalance', 'cardNumber', 'color', 'createdAt', 'updatedAt']) &&
+                         isValidAccount(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(accountId) &&
+                         isValidAccount(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'initialBalance', 'cardNumber', 'color', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(accountId);
+      }
+
+      match /categories/{categoryId} {
+        allow get: if isOwner(userId) && isValidId(categoryId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(categoryId) &&
+                         incoming().keys().hasAll(['name', 'type', 'emoji', 'color', 'subcategories', 'debtCategory', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['name', 'type', 'emoji', 'color', 'subcategories', 'debtCategory', 'createdAt', 'updatedAt']) &&
+                         isValidCategory(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(categoryId) &&
+                         isValidCategory(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           incoming().diff(existing()).affectedKeys().hasOnly(['subcategories', 'updatedAt']) ||
+                           incoming().diff(existing()).affectedKeys().hasOnly(['name', 'type', 'emoji', 'color', 'debtCategory', 'updatedAt']) ||
+                           incoming().diff(existing()).affectedKeys().hasOnly(['name', 'type', 'emoji', 'color', 'subcategories', 'debtCategory', 'updatedAt'])
+                         );
+        allow delete: if isOwner(userId) && isValidId(categoryId);
+      }
+
+      match /transactions/{transactionId} {
+        allow get: if isOwner(userId) && isValidId(transactionId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(transactionId) &&
+                         incoming().keys().hasAll(['type', 'amount', 'subcategory', 'year', 'month', 'day', 'note', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['type', 'amount', 'accountId', 'fromAccountId', 'toAccountId', 'categoryId', 'subcategory', 'personId', 'year', 'month', 'day', 'note', 'linkedLoanId', 'linkedInstallmentIndex', 'createdAt', 'updatedAt']) &&
+                         isValidTransaction(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(transactionId) &&
+                         isValidTransaction(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         (
+                           incoming().diff(existing()).affectedKeys().hasOnly(['subcategory', 'updatedAt']) ||
+                           incoming().diff(existing()).affectedKeys().hasOnly(['type', 'amount', 'accountId', 'fromAccountId', 'toAccountId', 'categoryId', 'subcategory', 'personId', 'year', 'month', 'day', 'note', 'linkedLoanId', 'linkedInstallmentIndex', 'updatedAt'])
+                         );
+        allow delete: if isOwner(userId) && isValidId(transactionId);
+      }
+
+      match /people/{personId} {
+        allow get: if isOwner(userId) && isValidId(personId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) &&
+                         isValidId(personId) &&
+                         incoming().keys().hasAll(['name', 'note', 'createdAt', 'updatedAt']) &&
+                         incoming().keys().hasOnly(['name', 'note', 'createdAt', 'updatedAt']) &&
+                         isValidPerson(incoming());
+        allow update: if isOwner(userId) &&
+                         isValidId(personId) &&
+                         isValidPerson(incoming()) &&
+                         incoming().createdAt == existing().createdAt &&
+                         incoming().diff(existing()).affectedKeys().hasOnly(['name', 'note', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(personId);
+      }
+    }
+  }
+}

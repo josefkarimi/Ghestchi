@@ -1,0 +1,6 @@
+{
+  "name": "قسط‌یار",
+  "description": "مدیریت اقساط، وام‌ها، حساب‌های بانکی و حسابداری شخصی با تقویم شمسی و همگام‌سازی ابری",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

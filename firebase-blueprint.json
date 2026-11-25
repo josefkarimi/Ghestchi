@@ -1,0 +1,292 @@
+{
+  "entities": {
+    "UserWorkspace": {
+      "title": "UserWorkspace",
+      "description": "Per-user workspace metadata tracking initial data seeding and category initialization.",
+      "type": "object",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "Firebase Auth UID of the workspace owner."
+        },
+        "initialDataSeeded": {
+          "type": "boolean",
+          "description": "Whether initial preloaded financial records have been seeded."
+        },
+        "categoriesInitialized": {
+          "type": "boolean",
+          "description": "Whether default categories have been initialized."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["userId", "initialDataSeeded", "categoriesInitialized", "createdAt", "updatedAt"]
+    },
+    "Loan": {
+      "title": "Loan",
+      "description": "Installment loan or BNPL plan with Jalali start date and paid installment indices.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string",
+          "description": "Loan title."
+        },
+        "source": {
+          "type": "string",
+          "description": "Bank or provider name."
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Monthly installment amount in Toman."
+        },
+        "totalCount": {
+          "type": "integer",
+          "description": "Total number of installments (1-360)."
+        },
+        "startDay": {
+          "type": "integer",
+          "description": "Jalali start day (1-31)."
+        },
+        "startMonth": {
+          "type": "integer",
+          "description": "Jalali start month (1-12)."
+        },
+        "startYear": {
+          "type": "integer",
+          "description": "Jalali start year."
+        },
+        "card": {
+          "type": "string",
+          "description": "Optional destination card or account number."
+        },
+        "paidIndices": {
+          "type": "array",
+          "description": "Zero-based indices of paid installments."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["title", "source", "amount", "totalCount", "startDay", "startMonth", "startYear", "card", "paidIndices", "createdAt", "updatedAt"]
+    },
+    "Account": {
+      "title": "Account",
+      "description": "Personal bank account or card with initial balance and accent color.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Account display name."
+        },
+        "initialBalance": {
+          "type": "integer",
+          "description": "Starting balance in Toman."
+        },
+        "cardNumber": {
+          "type": "string",
+          "description": "Optional card number."
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex accent color."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["name", "initialBalance", "cardNumber", "color", "createdAt", "updatedAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Expense or income category with emoji, color, subcategories, and debt flag.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Category name."
+        },
+        "type": {
+          "type": "string",
+          "enum": ["expense", "income"],
+          "description": "Category direction."
+        },
+        "emoji": {
+          "type": "string",
+          "description": "Category emoji icon."
+        },
+        "color": {
+          "type": "string",
+          "description": "Hex accent color."
+        },
+        "subcategories": {
+          "type": "array",
+          "description": "List of subcategory labels."
+        },
+        "debtCategory": {
+          "type": "boolean",
+          "description": "Whether transactions in this category link to a person in personal debts."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["name", "type", "emoji", "color", "subcategories", "debtCategory", "createdAt", "updatedAt"]
+    },
+    "Transaction": {
+      "title": "Transaction",
+      "description": "Expense, income, or internal transfer between accounts recorded on a Jalali date.",
+      "type": "object",
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["expense", "income", "transfer"],
+          "description": "Transaction type."
+        },
+        "amount": {
+          "type": "integer",
+          "description": "Amount in Toman."
+        },
+        "accountId": {
+          "type": "string",
+          "description": "Account ID for expense/income."
+        },
+        "fromAccountId": {
+          "type": "string",
+          "description": "Source account ID for internal transfers."
+        },
+        "toAccountId": {
+          "type": "string",
+          "description": "Destination account ID for internal transfers."
+        },
+        "categoryId": {
+          "type": "string",
+          "description": "Category ID for expense/income."
+        },
+        "subcategory": {
+          "type": "string",
+          "description": "Optional subcategory label."
+        },
+        "personId": {
+          "type": "string",
+          "description": "Optional person ID for debt-related transactions."
+        },
+        "year": {
+          "type": "integer",
+          "description": "Jalali year."
+        },
+        "month": {
+          "type": "integer",
+          "description": "Jalali month (1-12)."
+        },
+        "day": {
+          "type": "integer",
+          "description": "Jalali day (1-31)."
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional note."
+        },
+        "linkedLoanId": {
+          "type": "string",
+          "description": "Optional loan ID if generated by paying an installment."
+        },
+        "linkedInstallmentIndex": {
+          "type": "integer",
+          "description": "Optional installment index if generated by paying an installment."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["type", "amount", "subcategory", "year", "month", "day", "note", "createdAt", "updatedAt"]
+    },
+    "Person": {
+      "title": "Person",
+      "description": "Counterparty tracked in the personal debts (قرض و قوله) ledger.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Person name."
+        },
+        "note": {
+          "type": "string",
+          "description": "Optional phone number or note."
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Server timestamp written with FieldValue.serverTimestamp()."
+        }
+      },
+      "required": ["name", "note", "createdAt", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserWorkspace" },
+      "description": "Per-user workspace metadata document."
+    },
+    "/users/{userId}/loans/{loanId}": {
+      "schema": { "$ref": "#/entities/Loan" },
+      "description": "User-owned installment loans."
+    },
+    "/users/{userId}/accounts/{accountId}": {
+      "schema": { "$ref": "#/entities/Account" },
+      "description": "User-owned bank accounts and cards."
+    },
+    "/users/{userId}/categories/{categoryId}": {
+      "schema": { "$ref": "#/entities/Category" },
+      "description": "User-owned expense and income categories."
+    },
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": { "$ref": "#/entities/Transaction" },
+      "description": "User-owned financial transactions and transfers."
+    },
+    "/users/{userId}/people/{personId}": {
+      "schema": { "$ref": "#/entities/Person" },
+      "description": "User-owned personal debt contacts."
+    }
+  }
+}

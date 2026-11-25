@@ -1,0 +1,3232 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="artifact-type" content="tool">
+  <meta name="design-style" content="vitals">
+  <title>قسط‌یار | مدیریت اقساط و حسابداری شخصی</title>
+
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&family=Figtree:wght@400;600;700;800&family=Vazirmatn:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/bold/style.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/fill/style.css">
+
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #ffffff;
+      --surface-container-low: #f1f7f8;
+      --surface-container: #e3f1f3;
+      --surface-container-high: #d5e9ec;
+      --on-surface: #1b2b33;
+      --on-surface-variant: #46585f;
+      --outline: #7b9198;
+      --outline-variant: #d5e3e5;
+      --primary: #0f7c8a;
+      --on-primary: #ffffff;
+      --primary-container: #e3f1f3;
+      --on-primary-container: #0a5560;
+      --secondary: #1d5e3a;
+      --tertiary: #2e7d4f;
+      --error: #b3261e;
+      --on-error: #ffffff;
+      --positive: #2e7d4f;
+      --warning: #b86e00;
+      --focus: #0f7c8a;
+      --data-1: #0f7c8a;
+      --data-2: #2e7d4f;
+      --data-3: #b86e00;
+      --data-4: #5c5fb0;
+      --data-context: #b8c7ca;
+      --warning-bg: #fef3c7;
+      --warning-text: #854d0e;
+      --error-bg: #fce8e6;
+      --positive-bg: #e4f3ea;
+      --overlay-bg: rgb(15 26 31 / 0.58);
+
+      --font-headline: 'Vazirmatn', 'Figtree', sans-serif;
+      --font-body: 'Vazirmatn', 'Atkinson Hyperlegible', sans-serif;
+      --font-label: 'Vazirmatn', 'Figtree', sans-serif;
+
+      --display-size: clamp(1.65rem, 1.35rem + 1.1vw, 2.15rem);
+      --headline-size: clamp(1.2rem, 1.05rem + 0.5vw, 1.45rem);
+      --subhead-size: clamp(1.02rem, 0.96rem + 0.2vw, 1.15rem);
+      --body-size: clamp(0.9375rem, 0.9rem + 0.15vw, 1rem);
+      --label-size: 0.75rem;
+
+      --rounded: 0.625rem;
+      --rounded-lg: 0.875rem;
+      --rounded-full: 9999px;
+
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2.5rem;
+      --space-2xl: 4rem;
+
+      --top-bar: 6px solid var(--primary);
+      --status-bar-width: 4px;
+      --card-border: 1px solid var(--outline-variant);
+      --card-lift: 0 1px 2px rgb(27 43 51 / 0.05), 0 6px 16px rgb(27 43 51 / 0.05);
+
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+      --dur-micro: 120ms;
+      --dur-short: 220ms;
+    }
+
+    html.dark {
+      color-scheme: dark;
+      --background: #0f1a1f;
+      --surface-container-low: #15242a;
+      --surface-container: #1c2e35;
+      --surface-container-high: #243a42;
+      --on-surface: #e6eff1;
+      --on-surface-variant: #a9bcc2;
+      --outline: #5e7880;
+      --outline-variant: #2c4048;
+      --primary: #4fb8c6;
+      --on-primary: #0f1a1f;
+      --primary-container: #18363e;
+      --on-primary-container: #bfe6eb;
+      --secondary: #9fdcb7;
+      --tertiary: #5cbf85;
+      --error: #f2867c;
+      --on-error: #0f1a1f;
+      --positive: #5cbf85;
+      --warning: #e2a43b;
+      --focus: #4fb8c6;
+      --warning-bg: rgb(226 164 59 / 0.16);
+      --warning-text: #f3c875;
+      --error-bg: rgb(242 134 124 / 0.16);
+      --positive-bg: rgb(92 191 133 / 0.16);
+      --overlay-bg: rgb(7 13 16 / 0.72);
+      --card-lift: none;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body {
+      overflow-x: clip;
+      margin: 0;
+      padding: 0;
+      font-family: var(--font-body);
+      font-size: var(--body-size);
+      background-color: var(--surface-container-low);
+      color: var(--on-surface);
+      -webkit-tap-highlight-color: transparent;
+      transition: background-color var(--dur-short) var(--ease-in-out), color var(--dur-short) var(--ease-in-out);
+    }
+    header { position: static !important; }
+    button, input, select, textarea { font-family: inherit; }
+
+    .app-root {
+      border-top: var(--top-bar);
+      min-height: 100vh;
+      padding-bottom: calc(var(--space-2xl) + var(--space-lg));
+    }
+    .app-root.is-desktop {
+      padding-bottom: var(--space-xl);
+    }
+
+    .page-grid {
+      display: grid;
+      gap: var(--space-lg);
+      padding: var(--space-md) var(--space-lg);
+      max-width: 1200px;
+      margin: 0 auto;
+      overflow: hidden;
+    }
+    .page-grid * { min-width: 0; }
+
+    .v-header {
+      background-color: var(--background);
+      border-bottom: var(--card-border);
+      padding: var(--space-md) var(--space-lg);
+    }
+    .v-card {
+      background-color: var(--background);
+      border: var(--card-border);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md);
+      box-shadow: var(--card-lift);
+    }
+    .v-inset {
+      background-color: var(--surface-container-low);
+      border: var(--card-border);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+    }
+    .status-card {
+      background-color: var(--background);
+      border: var(--card-border);
+      border-inline-start: var(--status-bar-width) solid var(--primary);
+      border-radius: var(--rounded-lg);
+      padding: var(--space-md) var(--space-lg);
+      box-shadow: var(--card-lift);
+    }
+    .status-card[data-status="ok"] { border-inline-start-color: var(--tertiary); }
+    .status-card[data-status="alert"] { border-inline-start-color: var(--error); }
+    .status-card[data-status="warn"] { border-inline-start-color: var(--warning); }
+
+    .v-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--space-xs);
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: 0.85rem;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: background-color var(--dur-micro) var(--ease-out), transform var(--dur-micro) var(--ease-out), opacity var(--dur-micro) var(--ease-out);
+    }
+    .v-btn:active { transform: scale(0.98); }
+    .v-btn-primary {
+      background-color: var(--primary);
+      color: var(--on-primary);
+    }
+    .v-btn-primary:hover { opacity: 0.92; }
+    .v-btn-secondary {
+      background-color: var(--background);
+      color: var(--primary);
+      border-color: var(--outline-variant);
+    }
+    .v-btn-secondary:hover { background-color: var(--surface-container-low); }
+    .v-btn-ghost {
+      background-color: var(--surface-container-low);
+      color: var(--on-surface);
+    }
+    .v-btn-ghost:hover { background-color: var(--surface-container); }
+    .v-btn-danger {
+      background-color: var(--error-bg);
+      color: var(--error);
+    }
+    .v-icon-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      padding: var(--space-xs);
+      border-radius: var(--rounded);
+      border: 1px solid var(--outline-variant);
+      background-color: var(--background);
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+    .v-icon-btn:hover { background-color: var(--surface-container-low); color: var(--primary); }
+    .v-icon-btn.danger:hover { background-color: var(--error-bg); color: var(--error); }
+
+    .v-input, .v-select, .v-textarea {
+      width: 100%;
+      min-height: 44px;
+      background-color: var(--background);
+      color: var(--on-surface);
+      border: 1px solid var(--outline);
+      border-radius: var(--rounded);
+      padding: var(--space-sm) var(--space-md);
+      font-size: 0.9rem;
+      transition: box-shadow var(--dur-micro) var(--ease-out);
+    }
+    .v-select { padding-inline-start: var(--space-lg); }
+    .v-input:focus, .v-select:focus, .v-textarea:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px var(--primary);
+    }
+    .v-label {
+      display: block;
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: var(--label-size);
+      color: var(--on-surface-variant);
+      margin-bottom: var(--space-xs);
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-family: var(--font-label);
+      font-weight: 600;
+      font-size: var(--label-size);
+      padding: 0.2rem 0.65rem;
+      border-radius: var(--rounded-full);
+      background-color: var(--positive-bg);
+      color: var(--secondary);
+      white-space: nowrap;
+    }
+    .chip[data-status="info"] { background-color: var(--primary-container); color: var(--on-primary-container); }
+    .chip[data-status="alert"] { background-color: var(--error-bg); color: var(--error); }
+    .chip[data-status="warn"] { background-color: var(--warning-bg); color: var(--warning-text); }
+    .chip[data-status="neutral"] { background-color: var(--surface-container-low); color: var(--on-surface-variant); }
+
+    .tabular-nums { font-variant-numeric: tabular-nums; }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* Month KPI boxes - guaranteed zero overflow */
+    .month-kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: var(--space-sm);
+      padding-top: var(--space-sm);
+      border-top: 1px solid var(--outline-variant);
+    }
+    .month-kpi-box {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: var(--space-sm) var(--space-xs);
+      border-radius: var(--rounded);
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .month-kpi-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1.3;
+      margin-bottom: 0.2rem;
+    }
+    .month-kpi-value {
+      font-size: clamp(0.68rem, 2.4vw, 0.85rem);
+      font-weight: 800;
+      line-height: 1.25;
+      font-variant-numeric: tabular-nums;
+      max-width: 100%;
+      word-break: keep-all;
+    }
+    @media (max-width: 380px) {
+      .month-kpi-grid { grid-template-columns: 1fr; }
+      .month-kpi-box { flex-direction: row; justify-content: space-between; padding: var(--space-sm) var(--space-md); }
+      .month-kpi-value { font-size: 0.88rem; }
+    }
+
+    /* Modals & Navigation */
+    .v-modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 50;
+      background-color: var(--overlay-bg);
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0;
+    }
+    @media (min-width: 640px) {
+      .v-modal-backdrop { align-items: center; padding: var(--space-md); }
+    }
+    .v-modal-panel {
+      background-color: var(--background);
+      border: var(--card-border);
+      width: 100%;
+      max-width: 34rem;
+      max-height: 92vh;
+      display: flex;
+      flex-direction: column;
+      border-radius: var(--rounded-lg) var(--rounded-lg) 0 0;
+      box-shadow: var(--card-lift);
+      animation: slideUp var(--dur-short) var(--ease-out) forwards;
+    }
+    @media (min-width: 640px) {
+      .v-modal-panel { border-radius: var(--rounded-lg); }
+    }
+
+    .bottom-nav {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      z-index: 30;
+      background-color: var(--background);
+      border-top: var(--card-border);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
+    }
+    .bottom-nav-btn {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      min-height: 56px;
+      border: none;
+      background: transparent;
+      color: var(--on-surface-variant);
+      cursor: pointer;
+      border-top: 3px solid transparent;
+      padding: var(--space-xs);
+    }
+    .bottom-nav-btn.active {
+      color: var(--primary);
+      border-top-color: var(--primary);
+      font-weight: 700;
+    }
+
+    .side-nav-btn {
+      display: flex;
+      align-items: center;
+      gap: var(--space-sm);
+      width: 100%;
+      min-height: 44px;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded);
+      border: none;
+      background: transparent;
+      color: var(--on-surface-variant);
+      font-size: 0.85rem;
+      font-weight: 600;
+      cursor: pointer;
+      text-align: start;
+      transition: background-color var(--dur-micro) var(--ease-out), color var(--dur-micro) var(--ease-out);
+    }
+    .side-nav-btn:hover { background-color: var(--surface-container-low); }
+    .side-nav-btn.active {
+      background-color: var(--primary-container);
+      color: var(--on-primary-container);
+      font-weight: 700;
+    }
+
+    .fab-btn {
+      position: fixed;
+      bottom: 4.5rem;
+      left: 1rem;
+      z-index: 35;
+      min-height: 48px;
+      padding: var(--space-sm) var(--space-md);
+      border-radius: var(--rounded-full);
+      background-color: var(--primary);
+      color: var(--on-primary);
+      border: none;
+      box-shadow: var(--card-lift);
+      display: inline-flex;
+      align-items: center;
+      gap: var(--space-xs);
+      font-weight: 700;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+    .app-root.is-desktop .fab-btn { bottom: 1.5rem; left: 1.5rem; }
+
+    :focus-visible {
+      outline: 2px solid var(--focus);
+      outline-offset: 2px;
+    }
+
+    @keyframes slideUp {
+      from { transform: translateY(24px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    @media (max-width: 640px) {
+      .page-grid { padding: var(--space-sm); gap: var(--space-md); }
+      .v-header { padding: var(--space-sm) var(--space-md); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="appRoot" class="app-root">
+    <!-- Toast Container -->
+    <div id="toastContainer" style="position: fixed; top: 1rem; left: 1rem; right: 1rem; z-index: 60; display: flex; flex-direction: column; align-items: center; pointer-events: none; gap: 0.5rem;"></div>
+
+    <!-- Top Header (static per design foundation) -->
+    <header class="v-header">
+      <div id="headerInner" class="max-w-lg mx-auto flex items-center justify-between gap-2 flex-wrap">
+        <div class="flex items-center gap-3">
+          <div style="width: 42px; height: 42px; border-radius: var(--rounded); background-color: var(--primary); color: var(--on-primary);" class="flex items-center justify-center shrink-0">
+            <i class="ph-bold ph-wallet text-xl" aria-hidden="true"></i>
+          </div>
+          <div>
+            <h1 style="font-family: var(--font-headline); font-weight: 800; font-size: 1.1rem; line-height: 1.2; color: var(--on-surface);">قسط‌یار</h1>
+            <p id="headerTodayDate" style="font-size: var(--label-size); color: var(--on-surface-variant); margin: 0;">در حال بارگذاری...</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button id="layoutToggleBtn" onclick="toggleLayoutMode()" title="تغییر حالت نمایش دسکتاپ و موبایل" class="v-btn v-btn-ghost">
+            <i id="layoutToggleIcon" class="ph-bold ph-desktop text-base" style="color: var(--primary);"></i>
+            <span id="layoutToggleLabel" class="hidden sm:inline">نمای دسکتاپ</span>
+          </button>
+          <button onclick="toggleTheme()" title="تغییر تم روشن و تاریک" class="v-icon-btn" aria-label="تغییر تم">
+            <i id="themeIcon" class="ph-bold ph-moon text-lg"></i>
+          </button>
+          <button onclick="openSettingsModal()" title="پشتیبان‌گیری و تنظیمات" class="v-icon-btn" aria-label="تنظیمات و پشتیبان">
+            <i class="ph-bold ph-gear text-lg"></i>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main App Shell -->
+    <div id="appShell" class="max-w-lg mx-auto px-3 sm:px-4 pt-4">
+      <!-- Desktop Sidebar -->
+      <aside id="desktopSidebar" class="hidden shrink-0" style="width: 240px;">
+        <div class="v-card space-y-1">
+          <div style="font-size: var(--label-size); font-weight: 700; color: var(--on-surface-variant); padding: var(--space-xs) var(--space-sm);">بخش‌های برنامه</div>
+          <button onclick="switchTab('monthly')" id="side-monthly" class="side-nav-btn active">
+            <i class="ph-fill ph-calendar-check text-lg"></i>
+            <span>اقساط ماه</span>
+          </button>
+          <button onclick="switchTab('forecast')" id="side-forecast" class="side-nav-btn">
+            <i class="ph ph-chart-bar text-lg"></i>
+            <span>چشم‌انداز آینده</span>
+          </button>
+          <button onclick="switchTab('loans')" id="side-loans" class="side-nav-btn">
+            <i class="ph ph-list-dashes text-lg"></i>
+            <span>لیست وام‌ها</span>
+          </button>
+          <button onclick="switchTab('accounts')" id="side-accounts" class="side-nav-btn">
+            <i class="ph ph-credit-card text-lg"></i>
+            <span>حساب‌ها و کارت‌ها</span>
+          </button>
+          <button onclick="switchTab('transactions')" id="side-transactions" class="side-nav-btn">
+            <i class="ph ph-arrows-left-right text-lg"></i>
+            <span>تراکنش‌ها و دسته‌ها</span>
+          </button>
+          <button onclick="switchTab('debts')" id="side-debts" class="side-nav-btn">
+            <i class="ph ph-handshake text-lg"></i>
+            <span>قرض و قوله</span>
+          </button>
+          <div style="padding-top: var(--space-sm); margin-top: var(--space-sm); border-top: 1px solid var(--outline-variant);">
+            <button onclick="handleFabClick()" class="v-btn v-btn-primary w-full">
+              <i class="ph-bold ph-plus text-base"></i>
+              <span id="sidebarActionLabel">وام جدید</span>
+            </button>
+          </div>
+        </div>
+      </aside>
+
+      <!-- Main Content -->
+      <main id="appMain" class="flex-1 min-w-0 space-y-4"></main>
+    </div>
+
+    <!-- Floating Action Button -->
+    <button id="fabMainBtn" onclick="handleFabClick()" class="fab-btn">
+      <i id="fabIcon" class="ph-bold ph-plus text-lg"></i>
+      <span id="fabLabel">وام جدید</span>
+    </button>
+
+    <!-- Bottom Navigation Bar -->
+    <nav id="bottomNavBar" class="bottom-nav" aria-label="منوی اصلی">
+      <div class="max-w-lg mx-auto grid grid-cols-6">
+        <button onclick="switchTab('monthly')" id="nav-monthly" class="bottom-nav-btn active">
+          <i class="ph-fill ph-calendar-check text-xl"></i>
+          <span class="text-[10px]">اقساط ماه</span>
+        </button>
+        <button onclick="switchTab('forecast')" id="nav-forecast" class="bottom-nav-btn">
+          <i class="ph ph-chart-bar text-xl"></i>
+          <span class="text-[10px]">آینده</span>
+        </button>
+        <button onclick="switchTab('loans')" id="nav-loans" class="bottom-nav-btn">
+          <i class="ph ph-list-dashes text-xl"></i>
+          <span class="text-[10px]">وام‌ها</span>
+        </button>
+        <button onclick="switchTab('accounts')" id="nav-accounts" class="bottom-nav-btn">
+          <i class="ph ph-credit-card text-xl"></i>
+          <span class="text-[10px]">حساب‌ها</span>
+        </button>
+        <button onclick="switchTab('transactions')" id="nav-transactions" class="bottom-nav-btn">
+          <i class="ph ph-arrows-left-right text-xl"></i>
+          <span class="text-[10px]">تراکنش‌ها</span>
+        </button>
+        <button onclick="switchTab('debts')" id="nav-debts" class="bottom-nav-btn">
+          <i class="ph ph-handshake text-xl"></i>
+          <span class="text-[10px]">قرض و قوله</span>
+        </button>
+      </div>
+    </nav>
+  </div>
+
+  <!-- ==================== MODALS ==================== -->
+
+  <!-- 1. Add/Edit Loan Modal -->
+  <div id="loanModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel">
+      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--outline-variant);">
+        <h2 id="loanModalTitle" class="font-bold text-base">ثبت وام یا قسط جدید</h2>
+        <button onclick="closeModal('loanModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <form id="loanForm" onsubmit="saveLoan(event)" class="p-5 overflow-y-auto space-y-4">
+        <input type="hidden" id="loanId">
+        <div>
+          <label for="loanTitle" class="v-label">عنوان وام یا خرید *</label>
+          <input type="text" id="loanTitle" required placeholder="مثلاً: وام ازدواج، خرید گوشی" class="v-input">
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="loanSource" class="v-label">مرجع / بانک *</label>
+            <input type="text" id="loanSource" required placeholder="مثلاً: بانک ملت، دیجی‌پی" class="v-input">
+          </div>
+          <div>
+            <label for="loanAmount" class="v-label">مبلغ هر قسط (تومان) *</label>
+            <input type="text" id="loanAmount" inputmode="numeric" required placeholder="4,500,000" oninput="formatCurrencyInput(this)" class="v-input text-left" dir="ltr">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label for="loanTotalCount" class="v-label">تعداد کل اقساط (ماه) *</label>
+            <input type="number" id="loanTotalCount" min="1" max="360" required placeholder="12" class="v-input">
+          </div>
+          <div>
+            <label for="loanPaidCount" class="v-label">تعداد پرداخت‌شده تا الان</label>
+            <input type="number" id="loanPaidCount" min="0" max="360" value="0" class="v-input">
+          </div>
+        </div>
+        <div class="v-inset space-y-2">
+          <div class="text-xs font-bold" style="color: var(--primary);">تاریخ سررسید اولین قسط (شمسی)</div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label for="loanStartDay" class="v-label">روز</label>
+              <select id="loanStartDay" class="v-select"></select>
+            </div>
+            <div>
+              <label for="loanStartMonth" class="v-label">ماه</label>
+              <select id="loanStartMonth" class="v-select"></select>
+            </div>
+            <div>
+              <label for="loanStartYear" class="v-label">سال</label>
+              <select id="loanStartYear" class="v-select"></select>
+            </div>
+          </div>
+          <p id="loanEndPreview" class="text-xs" style="color: var(--on-surface-variant); margin: 0;"></p>
+        </div>
+        <div>
+          <label for="loanCard" class="v-label">شماره کارت / حساب مقصد (اختیاری)</label>
+          <input type="text" id="loanCard" placeholder="6037-9975-0000-0000" class="v-input" dir="ltr">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="v-btn v-btn-primary flex-1">ذخیره وام</button>
+          <button type="button" onclick="closeModal('loanModal')" class="v-btn v-btn-ghost">انصراف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 2. Pay Installment Modal -->
+  <div id="payInstallmentModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel p-5 space-y-4">
+      <div class="flex items-center justify-between pb-3" style="border-bottom: 1px solid var(--outline-variant);">
+        <div>
+          <h2 class="font-bold text-base">ثبت پرداخت قسط</h2>
+          <p id="payInstSubtitle" class="text-xs" style="color: var(--on-surface-variant); margin: 0;"></p>
+        </div>
+        <button onclick="closeModal('payInstallmentModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <form onsubmit="confirmPayInstallment(event)" class="space-y-4">
+        <input type="hidden" id="payInstLoanId">
+        <input type="hidden" id="payInstIndex">
+        <div class="v-inset flex items-center justify-between" style="background-color: var(--primary-container);">
+          <span class="text-xs font-bold" style="color: var(--on-primary-container);">مبلغ قابل پرداخت:</span>
+          <span id="payInstAmountDisplay" class="text-base font-extrabold tabular-nums" style="color: var(--on-primary-container);"></span>
+        </div>
+        <div>
+          <label for="payInstAccountSelect" class="v-label">کسر از کدام حساب؟</label>
+          <select id="payInstAccountSelect" class="v-select"></select>
+        </div>
+        <div>
+          <label for="payInstCategorySelect" class="v-label">دسته‌بندی هزینه</label>
+          <select id="payInstCategorySelect" onchange="onPayInstCategoryChange()" class="v-select"></select>
+        </div>
+        <div id="payInstSubcatWrapper" class="hidden">
+          <label for="payInstSubcatSelect" class="v-label">زیردسته (اختیاری)</label>
+          <select id="payInstSubcatSelect" class="v-select"></select>
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="v-btn v-btn-primary flex-1">تأیید و ثبت پرداخت</button>
+          <button type="button" onclick="closeModal('payInstallmentModal')" class="v-btn v-btn-ghost">انصراف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. Add/Edit Account Modal -->
+  <div id="accountModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel p-5 space-y-4">
+      <div class="flex items-center justify-between pb-3" style="border-bottom: 1px solid var(--outline-variant);">
+        <h2 id="accountModalTitle" class="font-bold text-base">افزودن حساب یا کارت جدید</h2>
+        <button onclick="closeModal('accountModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <form onsubmit="saveAccount(event)" class="space-y-4">
+        <input type="hidden" id="accountId">
+        <div>
+          <label for="accountName" class="v-label">نام حساب یا بانک *</label>
+          <input type="text" id="accountName" required placeholder="مثلاً: تجارت جاری، بلو بانک" class="v-input">
+        </div>
+        <div>
+          <label for="accountInitialBalance" class="v-label">موجودی اولیه (تومان) *</label>
+          <input type="text" id="accountInitialBalance" inputmode="numeric" required placeholder="0" oninput="formatCurrencyInput(this)" class="v-input text-left font-bold" dir="ltr">
+        </div>
+        <div>
+          <label for="accountCardNumber" class="v-label">شماره کارت (اختیاری)</label>
+          <input type="text" id="accountCardNumber" placeholder="6037-9975-0000-0000" class="v-input" dir="ltr">
+        </div>
+        <div>
+          <span class="v-label">رنگ کارت</span>
+          <div id="accountColorPicker" class="flex items-center gap-2 flex-wrap"></div>
+          <input type="hidden" id="accountColor" value="#0f7c8a">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="v-btn v-btn-primary flex-1">ذخیره حساب</button>
+          <button type="button" onclick="closeModal('accountModal')" class="v-btn v-btn-ghost">انصراف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 4. Add/Edit Transaction Modal (Expense / Income / Transfer) -->
+  <div id="transactionModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel">
+      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--outline-variant);">
+        <h2 id="transactionModalTitle" class="font-bold text-base">ثبت تراکنش جدید</h2>
+        <button onclick="closeModal('transactionModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <form onsubmit="saveTransaction(event)" class="p-5 overflow-y-auto space-y-4">
+        <input type="hidden" id="txEditId">
+        <input type="hidden" id="txFormType" value="expense">
+
+        <!-- 3-Way Transaction Type Selector -->
+        <div>
+          <span class="v-label">نوع تراکنش</span>
+          <div class="grid grid-cols-3 gap-1.5 p-1 rounded-lg" style="background-color: var(--surface-container-low); border: 1px solid var(--outline-variant);">
+            <button type="button" id="txTypeExpenseBtn" onclick="setTxFormType('expense')" class="v-btn" style="min-height: 38px; font-size: 0.78rem;">برداشت / هزینه</button>
+            <button type="button" id="txTypeIncomeBtn" onclick="setTxFormType('income')" class="v-btn" style="min-height: 38px; font-size: 0.78rem;">واریز / درآمد</button>
+            <button type="button" id="txTypeTransferBtn" onclick="setTxFormType('transfer')" class="v-btn" style="min-height: 38px; font-size: 0.78rem;">انتقال بین حساب‌ها</button>
+          </div>
+        </div>
+
+        <div id="txFormError" class="hidden text-xs font-bold p-2.5 rounded-lg" style="background-color: var(--error-bg); color: var(--error);"></div>
+
+        <div>
+          <label for="txAmount" class="v-label">مبلغ تراکنش (تومان) *</label>
+          <input type="text" id="txAmount" inputmode="numeric" required placeholder="250,000" oninput="formatCurrencyInput(this)" class="v-input text-left font-extrabold text-base" dir="ltr">
+        </div>
+
+        <!-- Standard Account & Category Section (for expense / income) -->
+        <div id="txStandardFields" class="space-y-4">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="txAccountSelect" class="v-label">حساب بانکی *</label>
+              <select id="txAccountSelect" class="v-select"></select>
+            </div>
+            <div>
+              <label for="txCategorySelect" class="v-label">دسته‌بندی *</label>
+              <select id="txCategorySelect" onchange="onTxFormCategoryChange()" class="v-select"></select>
+            </div>
+          </div>
+
+          <div id="txSubcatWrapper" class="hidden">
+            <label for="txSubcatSelect" class="v-label">زیردسته</label>
+            <select id="txSubcatSelect" class="v-select"></select>
+          </div>
+
+          <div id="txPersonWrapper" class="hidden v-inset space-y-2.5" style="background-color: var(--warning-bg);">
+            <div class="flex items-center justify-between">
+              <label for="txPersonSelect" class="v-label" style="color: var(--warning-text); margin: 0;">طرف حساب (شخص) *</label>
+              <button type="button" onclick="toggleQuickNewPerson()" class="text-xs font-bold" style="color: var(--primary); background: none; border: none; cursor: pointer;">+ شخص جدید</button>
+            </div>
+            <select id="txPersonSelect" class="v-select"></select>
+            <div id="quickNewPersonBox" class="hidden flex gap-2 items-end">
+              <div class="flex-1">
+                <label for="quickNewPersonName" class="v-label">نام شخص جدید</label>
+                <input type="text" id="quickNewPersonName" placeholder="نام..." class="v-input">
+              </div>
+              <button type="button" onclick="saveQuickPerson()" class="v-btn v-btn-primary">ثبت</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transfer Section (for transfer between accounts) -->
+        <div id="txTransferFields" class="hidden v-inset space-y-3" style="background-color: var(--primary-container);">
+          <div class="text-xs font-bold" style="color: var(--on-primary-container);">انتقال وجه داخلی (کارت به کارت بین حساب‌های خودتان)</div>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label for="txFromAccountSelect" class="v-label" style="color: var(--on-primary-container);">از حساب (مبدأ) *</label>
+              <select id="txFromAccountSelect" class="v-select"></select>
+            </div>
+            <div>
+              <label for="txToAccountSelect" class="v-label" style="color: var(--on-primary-container);">به حساب (مقصد) *</label>
+              <select id="txToAccountSelect" class="v-select"></select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Shamsi Date -->
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label for="txDay" class="v-label">روز</label>
+            <select id="txDay" class="v-select"></select>
+          </div>
+          <div>
+            <label for="txMonth" class="v-label">ماه</label>
+            <select id="txMonth" class="v-select"></select>
+          </div>
+          <div>
+            <label for="txYear" class="v-label">سال</label>
+            <select id="txYear" class="v-select"></select>
+          </div>
+        </div>
+
+        <div>
+          <label for="txNote" class="v-label">توضیحات (اختیاری)</label>
+          <input type="text" id="txNote" placeholder="مثلاً: شام رستوران، انتقال به کارت بلو" class="v-input">
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="submit" id="txSubmitBtn" class="v-btn v-btn-primary flex-1">ثبت تراکنش</button>
+          <button type="button" onclick="closeModal('transactionModal')" class="v-btn v-btn-ghost">انصراف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 5. Category Manager Modal -->
+  <div id="categoryModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel">
+      <div class="flex items-center justify-between px-5 py-4" style="border-bottom: 1px solid var(--outline-variant);">
+        <h2 class="font-bold text-base">مدیریت دسته‌بندی‌ها و زیردسته‌ها</h2>
+        <button onclick="closeModal('categoryModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <div id="categoryModalBody" class="p-5 overflow-y-auto space-y-5"></div>
+    </div>
+  </div>
+
+  <!-- 6. Add Person Modal -->
+  <div id="personModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel p-5 space-y-4">
+      <div class="flex items-center justify-between pb-3" style="border-bottom: 1px solid var(--outline-variant);">
+        <h2 class="font-bold text-base">افزودن شخص جدید (قرض و قوله)</h2>
+        <button onclick="closeModal('personModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <form onsubmit="savePerson(event)" class="space-y-4">
+        <div>
+          <label for="personNameInput" class="v-label">نام و نام خانوادگی *</label>
+          <input type="text" id="personNameInput" required placeholder="مثلاً: علی رضایی" class="v-input">
+        </div>
+        <div>
+          <label for="personNoteInput" class="v-label">شماره تماس یا یادداشت (اختیاری)</label>
+          <input type="text" id="personNoteInput" placeholder="توضیحات..." class="v-input">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="submit" class="v-btn v-btn-primary flex-1">ذخیره شخص</button>
+          <button type="button" onclick="closeModal('personModal')" class="v-btn v-btn-ghost">انصراف</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- 7. Generic Details Modal -->
+  <div id="detailModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel">
+      <div id="detailModalContent" class="flex flex-col max-h-[90vh]"></div>
+    </div>
+  </div>
+
+  <!-- 8. Settings & Backup Modal -->
+  <div id="settingsModal" class="v-modal-backdrop hidden">
+    <div class="v-modal-panel p-5 overflow-y-auto space-y-4">
+      <div class="flex items-center justify-between pb-3" style="border-bottom: 1px solid var(--outline-variant);">
+        <h2 class="font-bold text-base">پشتیبان‌گیری و تنظیمات</h2>
+        <button onclick="closeModal('settingsModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+      </div>
+      <div id="backupStatsSummary" class="v-inset text-xs leading-relaxed"></div>
+      <div class="grid grid-cols-1 gap-2.5">
+        <button onclick="exportData()" class="v-btn v-btn-primary w-full">
+          <i class="ph-bold ph-download-simple text-lg"></i>
+          <span>دانلود فایل پشتیبان کامل (JSON)</span>
+        </button>
+        <label class="v-btn v-btn-secondary w-full cursor-pointer">
+          <i class="ph-bold ph-upload-simple text-lg"></i>
+          <span>بازیابی اطلاعات از فایل پشتیبان</span>
+          <input type="file" accept=".json,application/json" onchange="importData(event)" class="hidden">
+        </label>
+        <button onclick="copyBackupToClipboard()" class="v-btn v-btn-ghost w-full">
+          <i class="ph-bold ph-copy text-base"></i>
+          <span>کپی متن کامل پشتیبان در حافظه</span>
+        </button>
+        <button onclick="togglePasteBackupBox()" class="v-btn v-btn-ghost w-full">
+          <i class="ph-bold ph-clipboard-text text-base"></i>
+          <span>بازیابی از متن کپی‌شده (Paste)</span>
+        </button>
+        <div id="pasteBackupBox" class="hidden space-y-2 pt-1">
+          <label for="pasteBackupTextarea" class="v-label">متن JSON پشتیبان</label>
+          <textarea id="pasteBackupTextarea" rows="4" placeholder="متن JSON را اینجا جای‌گذاری کنید..." class="v-textarea text-xs font-mono" dir="ltr"></textarea>
+          <button onclick="importFromPastedText()" class="v-btn v-btn-primary w-full">اعمال و بازیابی متن</button>
+        </div>
+        <div id="resetConfirmArea" class="pt-2 space-y-2">
+          <button onclick="showResetConfirm()" class="v-btn v-btn-danger w-full">
+            <i class="ph-bold ph-trash text-base"></i>
+            <span>پاک کردن همه داده‌ها (شروع از صفر)</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <api-shim></api-shim>
+  <script>
+    /* ==========================================================================
+       1. موتور تقویم شمسی (Jalali Calendar Engine)
+    ========================================================================== */
+    const JALALI_MONTHS = [
+      `فروردین`, `اردیبهشت`, `خرداد`, `تیر`, `مرداد`, `شهریور`,
+      `مهر`, `آبان`, `آذر`, `دی`, `بهمن`, `اسفند`
+    ];
+    const JALALI_WEEKDAYS = [`یکشنبه`, `دوشنبه`, `سه‌شنبه`, `چهارشنبه`, `پنج‌شنبه`, `جمعه`, `شنبه`];
+
+    function gregorianToJalali(gy, gm, gd) {
+      const g_d_m = [0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334];
+      const gy2 = (gm > 2) ? (gy + 1) : gy;
+      let days = 355666 + (365 * gy) + Math.floor((gy2 + 3) / 4) - Math.floor((gy2 + 99) / 100) + Math.floor((gy2 + 399) / 400) + gd + g_d_m[gm - 1];
+      let jy = -1595 + (33 * Math.floor(days / 12053));
+      days %= 12053;
+      jy += 4 * Math.floor(days / 1461);
+      days %= 1461;
+      if (days > 365) {
+        jy += Math.floor((days - 1) / 365);
+        days = (days - 1) % 365;
+      }
+      const jm = (days < 186) ? 1 + Math.floor(days / 31) : 7 + Math.floor((days - 186) / 30);
+      const jd = 1 + ((days < 186) ? (days % 31) : ((days - 186) % 30));
+      return { jy, jm, jd };
+    }
+
+    function isJalaliLeapYear(jy) {
+      const breaks = [-61, 9, 38, 199, 426, 686, 756, 818, 1111, 1181, 1210, 1635, 2060, 2097, 2192, 2262, 2324, 2394, 2456, 3178];
+      let jp = breaks[0], jump = 0;
+      for (let i = 1; i < breaks.length; i++) {
+        const jm = breaks[i];
+        jump = jm - jp;
+        if (jy < jm) break;
+        jp = jm;
+      }
+      let n = jy - jp;
+      if (jump - n < 6) n = n - jump + Math.floor((jump + 4) / 33) * 33;
+      let leap = (((n + 1) % 33) - 1) % 4;
+      if (leap === -1) leap = 4;
+      return leap === 0;
+    }
+
+    function getJalaliMonthDays(jy, jm) {
+      if (jm <= 6) return 31;
+      if (jm <= 11) return 30;
+      return isJalaliLeapYear(jy) ? 30 : 29;
+    }
+
+    function addJalaliMonths(startYear, startMonth, startDay, monthsToAdd) {
+      const totalMonths = (startYear * 12 + (startMonth - 1)) + monthsToAdd;
+      const year = Math.floor(totalMonths / 12);
+      const month = (totalMonths % 12) + 1;
+      const maxDays = getJalaliMonthDays(year, month);
+      const day = Math.min(startDay, maxDays);
+      return { year, month, day };
+    }
+
+    function getTodayJalali() {
+      const now = new Date();
+      const j = gregorianToJalali(now.getFullYear(), now.getMonth() + 1, now.getDate());
+      return {
+        year: j.jy,
+        month: j.jm,
+        day: j.jd,
+        weekday: JALALI_WEEKDAYS[now.getDay()]
+      };
+    }
+
+    const TODAY = getTodayJalali();
+
+    /* ==========================================================================
+       2. ابزارهای فرمت‌دهی و اعلان‌ها
+    ========================================================================== */
+    function toPersianDigits(num) {
+      const persian = [`۰`, `۱`, `۲`, `۳`, `۴`, `۵`, `۶`, `۷`, `۸`, `۹`];
+      return String(num).replace(/\d/g, d => persian[d]);
+    }
+
+    function toEnglishDigits(str) {
+      return String(str)
+        .replace(/[۰-۹]/g, d => `۰۱۲۳۴۵۶۷۸۹`.indexOf(d))
+        .replace(/[٠-٩]/g, d => `٠١٢٣٤٥٦٧٨٩`.indexOf(d));
+    }
+
+    function formatMoney(amount) {
+      if (amount === null || amount === undefined || isNaN(amount)) return `۰`;
+      const sign = amount < 0 ? `-` : ``;
+      return sign + toPersianDigits(Math.abs(Math.round(amount)).toLocaleString(`en-US`));
+    }
+
+    function formatCurrencyInput(input) {
+      const raw = toEnglishDigits(input.value).replace(/[^\d]/g, ``);
+      if (!raw) { input.value = ``; return; }
+      input.value = Number(raw).toLocaleString(`en-US`);
+    }
+
+    function escapeHtml(str) {
+      return String(str || ``)
+        .replace(/&/g, `&amp;`)
+        .replace(/</g, `&lt;`)
+        .replace(/>/g, `&gt;`)
+        .replace(/"/g, `&quot;`)
+        .replace(/'/g, `&#39;`);
+    }
+
+    function showToast(message, type = `success`) {
+      const container = document.getElementById(`toastContainer`);
+      if (!container) return;
+      const toast = document.createElement(`div`);
+      toast.style.backgroundColor = type === `success` ? `var(--on-surface)` : `var(--error)`;
+      toast.style.color = `var(--background)`;
+      toast.style.padding = `0.6rem 1rem`;
+      toast.style.borderRadius = `var(--rounded-full)`;
+      toast.style.fontSize = `0.8rem`;
+      toast.style.fontWeight = `700`;
+      toast.style.display = `flex`;
+      toast.style.alignItems = `center`;
+      toast.style.gap = `0.4rem`;
+      toast.style.boxShadow = `var(--card-lift)`;
+      toast.innerHTML = `<i class="ph-fill ${type === `success` ? `ph-check-circle` : `ph-warning-circle`} text-base"></i><span>${escapeHtml(message)}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = `0`;
+        setTimeout(() => toast.remove(), 250);
+      }, 2600);
+    }
+
+    function copyText(text, label = `متن`) {
+      if (!text) return;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(text).then(() => showToast(`${label} کپی شد!`)).catch(() => fallbackCopy(text, label));
+      } else {
+        fallbackCopy(text, label);
+      }
+    }
+
+    function fallbackCopy(text, label) {
+      const ta = document.createElement(`textarea`);
+      ta.value = text;
+      document.body.appendChild(ta);
+      ta.select();
+      try {
+        document.execCommand(`copy`);
+        showToast(`${label} کپی شد!`);
+      } catch (e) {
+        showToast(`خطا در کپی کردن`, `error`);
+      }
+      document.body.removeChild(ta);
+    }
+
+    function closeModal(modalId) {
+      const el = document.getElementById(modalId);
+      if (el) el.classList.add(`hidden`);
+    }
+
+    /* ==========================================================================
+       3. داده‌های پایه و ذخیره‌سازی با notebookAppApi
+    ========================================================================== */
+    const ACCOUNT_COLORS = [`#0f7c8a`, `#0284c7`, `#7c3aed`, `#2e7d4f`, `#b86e00`, `#db2777`];
+    const CATEGORY_COLORS = [`#0f7c8a`, `#2e7d4f`, `#f59e0b`, `#3b82f6`, `#ec4899`, `#6366f1`, `#e11d48`, `#f97316`];
+
+    function getDefaultCategories() {
+      return [
+        { id: `cat-loan`, name: `اقساط و وام`, type: `expense`, emoji: `🏦`, color: `#059669`, subcategories: [`قسط بانک`, `خرید اقساطی`, `قرعه‌کشی`] },
+        { id: `cat-food`, name: `خوراک و رستوران`, type: `expense`, emoji: `🍔`, color: `#f59e0b`, subcategories: [`سوپرمارکت`, `رستوران`, `کافه`] },
+        { id: `cat-transport`, name: `حمل و نقل و خودرو`, type: `expense`, emoji: `🚗`, color: `#3b82f6`, subcategories: [`بنزین موتور`, `تاکسی اینترنتی`, `تعویض روغن`] },
+        { id: `cat-shopping`, name: `پوشاک و خرید`, type: `expense`, emoji: `🛍️`, color: `#ec4899`, subcategories: [`لباس`, `لوازم خانه`] },
+        { id: `cat-bills`, name: `قبوض و شارژ`, type: `expense`, emoji: `🧾`, color: `#6366f1`, subcategories: [`اینترنت و موبایل`, `آب و برق و گاز`] },
+        { id: `cat-lend`, name: `قرض دادن / بازپرداخت قرض`, type: `expense`, emoji: `🤝`, color: `#e11d48`, subcategories: [`قرض دادن به دیگران`, `تسویه بدهی من`], isDebtCategory: true },
+        { id: `cat-salary`, name: `حقوق و درآمد`, type: `income`, emoji: `💰`, color: `#10b981`, subcategories: [`حقوق ماهانه`, `پاداش و اضافه کار`] },
+        { id: `cat-borrow`, name: `قرض گرفتن / پس گرفتن طلب`, type: `income`, emoji: `📥`, color: `#0ea5e9`, subcategories: [`قرض گرفتن از دیگران`, `دریافت طلب`], isDebtCategory: true },
+        { id: `cat-1795262456294`, name: `تفریح`, type: `expense`, emoji: `📌`, color: `#f97316`, subcategories: [`سفر`, `بیلیارد`, `بازی`, `باشگاه`] }
+      ];
+    }
+
+    function getInitialSourceData() {
+      return {
+        loans: [
+          { id: `loan-1795366866503`, title: `شارژ ساختمون`, source: `فاطمه`, amount: 1000000, totalCount: 12, startDay: 1, startMonth: 9, startYear: 1405, card: ``, paidIndices: [0] },
+          { id: `loan-1795243971155`, title: `اوانو`, source: `همراه اول`, amount: 1930000, totalCount: 1, startDay: 1, startMonth: 9, startYear: 1405, card: ``, paidIndices: [0] },
+          { id: `loan-1795209307772`, title: `باشگاه ۱۴۰۵`, source: `فریبرز`, amount: 6000000, totalCount: 12, startDay: 1, startMonth: 1, startYear: 1405, card: ``, paidIndices: [0,1,2,3,4,5,6,7,8] },
+          { id: `loan-1795209155119`, title: `مساعده`, source: `حقوق`, amount: 12500000, totalCount: 2, startDay: 1, startMonth: 9, startYear: 1405, card: ``, paidIndices: [0] },
+          { id: `loan-1795209070771`, title: `اعتبار بلو`, source: `بلو`, amount: 9064772, totalCount: 6, startDay: 6, startMonth: 8, startYear: 1405, card: ``, paidIndices: [0,1] },
+          { id: `loan-1795208959615`, title: `شلوار و کلاه کمپ شاپینگ`, source: `اسنپ پی`, amount: 1932500, totalCount: 4, startDay: 1, startMonth: 9, startYear: 1405, card: ``, paidIndices: [0] },
+          { id: `loan-1795208830810`, title: `کاپشن و شلوار کمپ شاپینگ`, source: `اسنپ پی`, amount: 3927500, totalCount: 4, startDay: 1, startMonth: 8, startYear: 1405, card: ``, paidIndices: [0,1] },
+          { id: `loan-1795208754417`, title: `اسنپ پی محدثه`, source: `اسنپ پی`, amount: 1562500, totalCount: 1, startDay: 1, startMonth: 9, startYear: 1405, card: ``, paidIndices: [0] },
+          { id: `loan-1795208524406`, title: `اسنپ پی یوسف`, source: `اسنپ پی`, amount: 7654182, totalCount: 1, startDay: 1, startMonth: 9, startYear: 1405, card: ``, paidIndices: [0] },
+          { id: `loan-1795208229845`, title: `بوت اکو`, source: `اسنپ پی`, amount: 2860000, totalCount: 4, startDay: 1, startMonth: 8, startYear: 1405, card: ``, paidIndices: [0,1] },
+          { id: `loan-1795208070657`, title: `بلو محدثه`, source: `بلو`, amount: 3530000, totalCount: 6, startDay: 20, startMonth: 9, startYear: 1405, card: ``, paidIndices: [] },
+          { id: `loan-1795207911749`, title: `طلا اسنپ پی`, source: `اسنپ پی`, amount: 9400000, totalCount: 12, startDay: 21, startMonth: 12, startYear: 1404, card: ``, paidIndices: [0,1,2,3,4,5,6,7,8] },
+          { id: `loan-1795207766865`, title: `گوشی محدثه`, source: `ازکی بلو`, amount: 2859196, totalCount: 18, startDay: 21, startMonth: 9, startYear: 1404, card: ``, paidIndices: [0,1,2,3,4,5,6,7,8,9,10,11] },
+          { id: `loan-1795207679171`, title: `بلو یوسف`, source: `بلو بانک`, amount: 2315862, totalCount: 12, startDay: 18, startMonth: 9, startYear: 1405, card: ``, paidIndices: [] },
+          { id: `loan-1795207548163`, title: `طلا`, source: `بلو بانک`, amount: 17800000, totalCount: 6, startDay: 4, startMonth: 8, startYear: 1405, card: ``, paidIndices: [0,1] },
+          { id: `loan-1795207431407`, title: `وام موتور`, source: `تجارت`, amount: 3900000, totalCount: 60, startDay: 22, startMonth: 6, startYear: 1404, card: `5859831848517560`, paidIndices: [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14] },
+          { id: `loan-1795207216898`, title: `وام ازدواج محدثه`, source: `تجارت`, amount: 636400, totalCount: 116, startDay: 3, startMonth: 1, startYear: 1401, card: `5859837008918290`, paidIndices: Array.from({ length: 57 }, (_, i) => i) },
+          { id: `loan-1795206047087`, title: `وام ازدواج یوسف`, source: `بانک تجارت`, amount: 1272800, totalCount: 116, startDay: 10, startMonth: 1, startYear: 1401, card: `5859-8370-0891-8290`, paidIndices: Array.from({ length: 57 }, (_, i) => i) }
+        ],
+        accounts: [
+          { id: `acc-main`, name: `تجارت جاری`, initialBalance: 20000000, cardNumber: ``, color: `#0284c7` },
+          { id: `acc-cash`, name: `بلو`, initialBalance: 900000, cardNumber: ``, color: `#e11d48` },
+          { id: `acc-1795288315680`, name: `محدثه`, initialBalance: 16500000, cardNumber: ``, color: `#7c3aed` }
+        ],
+        categories: getDefaultCategories(),
+        transactions: [
+          { id: `tx-1795422900450`, type: `income`, amount: 700000, accountId: `acc-cash`, categoryId: `cat-salary`, subcategory: `پاداش و اضافه کار`, personId: null, year: 1405, month: 9, day: 2, note: `دنگ کورش` },
+          { id: `tx-1795422840450`, type: `expense`, amount: 25000000, accountId: `acc-cash`, categoryId: `cat-lend`, subcategory: `تسویه بدهی من`, personId: `person-1795262291376`, year: 1405, month: 9, day: 2, note: `دلار` },
+          { id: `tx-1795422548787`, type: `income`, amount: 30000000, accountId: `acc-cash`, categoryId: `cat-salary`, subcategory: `حقوق ماهانه`, personId: null, year: 1405, month: 9, day: 2, note: `لمیز` },
+          { id: `tx-1795373019725`, type: `expense`, amount: 98133, accountId: `acc-cash`, categoryId: `cat-lend`, subcategory: `قرض دادن به دیگران`, personId: `person-1795288567669`, year: 1405, month: 9, day: 1, note: `` },
+          { id: `tx-inst-1795368122617`, type: `expense`, amount: 1272800, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قسط بانک`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۵۷ وام ازدواج یوسف`, linkedLoanId: `loan-1795206047087`, linkedInstallmentIndex: 56 },
+          { id: `tx-inst-1795368111159`, type: `expense`, amount: 636400, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قسط بانک`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۵۷ وام ازدواج محدثه`, linkedLoanId: `loan-1795207216898`, linkedInstallmentIndex: 56 },
+          { id: `tx-1795368033306`, type: `expense`, amount: 1500000, accountId: `acc-cash`, categoryId: `cat-1795262456294`, subcategory: `باشگاه`, personId: null, year: 1405, month: 9, day: 1, note: `` },
+          { id: `tx-1795367857819`, type: `expense`, amount: 280000, accountId: `acc-cash`, categoryId: `cat-lend`, subcategory: `تسویه بدهی من`, personId: `person-1795254068764`, year: 1405, month: 9, day: 1, note: `` },
+          { id: `tx-inst-1795367598356`, type: `expense`, amount: 1930000, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قسط بانک`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۱ اوانو`, linkedLoanId: `loan-1795243971155`, linkedInstallmentIndex: 0 },
+          { id: `tx-inst-1795367583410`, type: `expense`, amount: 1000000, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قرعه‌کشی`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۱ شارژ ساختمون`, linkedLoanId: `loan-1795366866503`, linkedInstallmentIndex: 0 },
+          { id: `tx-1795367543753`, type: `expense`, amount: 2000000, accountId: `acc-cash`, categoryId: `cat-lend`, subcategory: `تسویه بدهی من`, personId: `person-1795262291376`, year: 1405, month: 9, day: 1, note: `بابت دلار برای فاطمه واریز کردم` },
+          { id: `tx-inst-1795367170961`, type: `expense`, amount: 9064772, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قسط بانک`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۲ اعتبار بلو`, linkedLoanId: `loan-1795209070771`, linkedInstallmentIndex: 1 },
+          { id: `tx-inst-1795367147408`, type: `expense`, amount: 17800000, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قسط بانک`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۲ طلا`, linkedLoanId: `loan-1795207548163`, linkedInstallmentIndex: 1 },
+          { id: `tx-1795367111536`, type: `income`, amount: 12500000, accountId: `acc-cash`, categoryId: `cat-salary`, subcategory: `پاداش و اضافه کار`, personId: null, year: 1405, month: 9, day: 1, note: `بابت ادجاسمنت` },
+          { id: `tx-inst-1795367053824`, type: `expense`, amount: 12500000, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `قسط بانک`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۱ مساعده`, linkedLoanId: `loan-1795209155119`, linkedInstallmentIndex: 0 },
+          { id: `tx-1795366973364`, type: `income`, amount: 49646287, accountId: `acc-cash`, categoryId: `cat-salary`, subcategory: `حقوق ماهانه`, personId: null, year: 1405, month: 9, day: 1, note: `اسنپ` },
+          { id: `tx-inst-1795366933749`, type: `expense`, amount: 7654182, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `خرید اقساطی`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۱ اسنپ پی یوسف`, linkedLoanId: `loan-1795208524406`, linkedInstallmentIndex: 0 },
+          { id: `tx-inst-1795366905248`, type: `expense`, amount: 2860000, accountId: `acc-cash`, categoryId: `cat-loan`, subcategory: `خرید اقساطی`, year: 1405, month: 9, day: 1, note: `پرداخت قسط ۲ بوت اکو`, linkedLoanId: `loan-1795208229845`, linkedInstallmentIndex: 1 },
+          { id: `tx-1795288598764`, type: `expense`, amount: 2500, accountId: `acc-1795288315680`, categoryId: `cat-lend`, subcategory: `قرض دادن به دیگران`, personId: `person-1795288567669`, year: 1405, month: 8, day: 30, note: `` },
+          { id: `tx-1795288459262`, type: `expense`, amount: 4675000, accountId: `acc-1795288315680`, categoryId: `cat-shopping`, subcategory: `لباس`, personId: null, year: 1405, month: 8, day: 30, note: `جوراب` },
+          { id: `tx-inst-1795288408361`, type: `expense`, amount: 1562500, accountId: `acc-1795288315680`, categoryId: `cat-loan`, subcategory: `خرید اقساطی`, year: 1405, month: 8, day: 30, note: `پرداخت قسط ۱ اسنپ پی محدثه`, linkedLoanId: `loan-1795208754417`, linkedInstallmentIndex: 0 },
+          { id: `tx-inst-1795288399662`, type: `expense`, amount: 3927500, accountId: `acc-1795288315680`, categoryId: `cat-loan`, subcategory: `خرید اقساطی`, year: 1405, month: 8, day: 30, note: `پرداخت قسط ۲ کاپشن و شلوار کمپ شاپینگ`, linkedLoanId: `loan-1795208830810`, linkedInstallmentIndex: 1 },
+          { id: `tx-inst-1795288386105`, type: `expense`, amount: 1932500, accountId: `acc-1795288315680`, categoryId: `cat-loan`, subcategory: `خرید اقساطی`, year: 1405, month: 8, day: 30, note: `پرداخت قسط ۱ شلوار و کلاه کمپ شاپینگ`, linkedLoanId: `loan-1795208959615`, linkedInstallmentIndex: 0 },
+          { id: `tx-1795275491159`, type: `expense`, amount: 50000, accountId: `acc-cash`, categoryId: `cat-transport`, subcategory: `بنزین موتور`, personId: null, year: 1405, month: 8, day: 30, note: `` },
+          { id: `tx-1795269886360`, type: `expense`, amount: 200000, accountId: `acc-cash`, categoryId: `cat-food`, subcategory: `سوپرمارکت`, personId: null, year: 1405, month: 8, day: 30, note: `کیوبی` },
+          { id: `tx-1795262479575`, type: `expense`, amount: 27000000, accountId: `acc-main`, categoryId: `cat-1795262456294`, subcategory: `سفر`, personId: null, year: 1405, month: 8, day: 30, note: `دلار برای ترکیه` },
+          { id: `tx-1795262323872`, type: `income`, amount: 27000000, accountId: `acc-main`, categoryId: `cat-borrow`, subcategory: `قرض گرفتن از دیگران`, personId: `person-1795262291376`, year: 1405, month: 8, day: 30, note: `خرید دلار از فاطمه` },
+          { id: `tx-1795254251458`, type: `expense`, amount: 830000, accountId: `acc-cash`, categoryId: `cat-shopping`, subcategory: `لباس`, personId: null, day: 30, month: 8, year: 1405, note: `کلاه دزدی کمپ شاپینگ` },
+          { id: `tx-1795254185250`, type: `income`, amount: 830000, accountId: `acc-cash`, categoryId: `cat-borrow`, subcategory: `دریافت طلب`, personId: `person-1795254068764`, day: 30, month: 8, year: 1405, note: `کلاه دزدی کمپ شاپینگ` },
+          { id: `tx-1795254113012`, type: `expense`, amount: 550000, accountId: `acc-cash`, categoryId: `cat-lend`, subcategory: `قرض دادن به دیگران`, personId: `person-1795254068764`, day: 30, month: 8, year: 1405, note: `کافه Rene همیلا` },
+          { id: `tx-1795253379550`, type: `expense`, amount: 12500000, accountId: `acc-main`, categoryId: `cat-lend`, subcategory: `قرض دادن به دیگران`, personId: `person-1795253349856`, day: 30, month: 8, year: 1405, note: `بابت هزینه ایزوگام ساختمون` }
+        ],
+        people: [
+          { id: `person-1795253349856`, name: `بابا`, note: `` },
+          { id: `person-1795254068764`, name: `فریبرز`, note: `` },
+          { id: `person-1795262291376`, name: `حاج علی`, note: `` },
+          { id: `person-1795288567669`, name: `رند`, note: `` }
+        ],
+        categoriesInitialized: true
+      };
+    }
+
+    const state = {
+      loans: [],
+      accounts: [],
+      categories: [],
+      transactions: [],
+      people: [],
+      categoriesInitialized: false,
+      activeTab: `monthly`,
+      selectedYear: 1405,
+      selectedMonth: 9,
+      txSelectedYear: 1405,
+      txSelectedMonth: 9,
+      txFilterType: `all`,
+      txSelectedCategories: [],
+      selectedChartCategoryId: null,
+      layoutMode: `auto`,
+      theme: `light`
+    };
+
+    async function loadState() {
+      let saved = null;
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.getAppState === `function`) {
+          saved = await window.notebookAppApi.getAppState();
+        }
+      } catch (e) {
+        saved = null;
+      }
+
+      if (saved && typeof saved === `object` && Array.isArray(saved.loans)) {
+        state.loans = saved.loans;
+        state.accounts = Array.isArray(saved.accounts) ? saved.accounts : [];
+        state.transactions = Array.isArray(saved.transactions) ? saved.transactions : [];
+        state.people = Array.isArray(saved.people) ? saved.people : [];
+        state.categoriesInitialized = Boolean(saved.categoriesInitialized);
+        state.categories = (Array.isArray(saved.categories) && (saved.categories.length > 0 || state.categoriesInitialized))
+          ? saved.categories
+          : getDefaultCategories();
+        if (saved.theme === `dark` || saved.theme === `light`) state.theme = saved.theme;
+        if (saved.layoutMode === `desktop` || saved.layoutMode === `mobile` || saved.layoutMode === `auto`) state.layoutMode = saved.layoutMode;
+      } else {
+        const init = getInitialSourceData();
+        state.loans = init.loans;
+        state.accounts = init.accounts;
+        state.categories = init.categories;
+        state.transactions = init.transactions;
+        state.people = init.people;
+        state.categoriesInitialized = true;
+        await saveState();
+      }
+      state.selectedYear = TODAY.year >= 1405 ? TODAY.year : 1405;
+      state.selectedMonth = TODAY.year >= 1405 ? TODAY.month : 9;
+      state.txSelectedYear = state.selectedYear;
+      state.txSelectedMonth = state.selectedMonth;
+      applyTheme(state.theme);
+      applyLayoutClasses();
+    }
+
+    async function saveState() {
+      const payload = {
+        loans: state.loans,
+        accounts: state.accounts,
+        categories: state.categories,
+        transactions: state.transactions,
+        people: state.people,
+        categoriesInitialized: true,
+        theme: state.theme,
+        layoutMode: state.layoutMode
+      };
+      try {
+        if (window.notebookAppApi && typeof window.notebookAppApi.setAppState === `function`) {
+          await window.notebookAppApi.setAppState(payload);
+        }
+      } catch (e) {
+        // Silent fallback inside sandbox
+      }
+    }
+
+    /* ==========================================================================
+       4. موتور محاسبات وام، حساب و قرض (با پشتیبانی از انتقال وجه بین حساب‌ها)
+    ========================================================================== */
+    function getLoanSchedule(loan) {
+      const schedule = [];
+      for (let i = 0; i < loan.totalCount; i++) {
+        const due = addJalaliMonths(loan.startYear, loan.startMonth, loan.startDay, i);
+        schedule.push({
+          loanId: loan.id,
+          loanTitle: loan.title,
+          loanSource: loan.source,
+          loanCard: loan.card,
+          amount: loan.amount,
+          installmentNumber: i + 1,
+          totalCount: loan.totalCount,
+          index: i,
+          year: due.year,
+          month: due.month,
+          day: due.day,
+          isPaid: Array.isArray(loan.paidIndices) && loan.paidIndices.includes(i)
+        });
+      }
+      return schedule;
+    }
+
+    function getInstallmentsForMonth(year, month) {
+      const list = [];
+      state.loans.forEach(loan => {
+        getLoanSchedule(loan).forEach(item => {
+          if (item.year === year && item.month === month) list.push(item);
+        });
+      });
+      return list.sort((a, b) => {
+        if (a.isPaid !== b.isPaid) return a.isPaid ? 1 : -1;
+        return a.day - b.day;
+      });
+    }
+
+    function getGlobalSummary() {
+      let totalRemainingDebt = 0;
+      let activeLoansCount = 0;
+      state.loans.forEach(loan => {
+        const paidCount = Array.isArray(loan.paidIndices) ? loan.paidIndices.length : 0;
+        const remainingCount = Math.max(0, loan.totalCount - paidCount);
+        totalRemainingDebt += remainingCount * loan.amount;
+        if (remainingCount > 0) activeLoansCount++;
+      });
+      return { totalRemainingDebt, activeLoansCount };
+    }
+
+    function getAccountBalance(accountId) {
+      const acc = state.accounts.find(a => a.id === accountId);
+      if (!acc) return 0;
+      let balance = Number(acc.initialBalance) || 0;
+      state.transactions.forEach(tx => {
+        const amt = Number(tx.amount) || 0;
+        if (tx.type === `transfer`) {
+          if (tx.fromAccountId === accountId) balance -= amt;
+          if (tx.toAccountId === accountId) balance += amt;
+        } else if (tx.accountId === accountId) {
+          if (tx.type === `income`) balance += amt;
+          else balance -= amt;
+        }
+      });
+      return balance;
+    }
+
+    function getPersonNetBalance(personId) {
+      let net = 0;
+      state.transactions.forEach(tx => {
+        if (tx.type !== `transfer` && tx.personId === personId) {
+          if (tx.type === `expense`) net += Number(tx.amount) || 0;
+          else net -= Number(tx.amount) || 0;
+        }
+      });
+      return net;
+    }
+
+    function isDebtRelatedCategory(cat) {
+      if (!cat) return false;
+      return Boolean(cat.isDebtCategory) || cat.name.includes(`قرض`) || cat.name.includes(`طلب`) || cat.name.includes(`بدهی`);
+    }
+
+    /* ==========================================================================
+       5. تم و حالت نمایش دسکتاپ/موبایل
+    ========================================================================== */
+    function applyTheme(theme) {
+      const htmlEl = document.documentElement;
+      const icon = document.getElementById(`themeIcon`);
+      if (theme === `dark`) {
+        htmlEl.classList.add(`dark`);
+        if (icon) icon.className = `ph-bold ph-sun text-lg`;
+      } else {
+        htmlEl.classList.remove(`dark`);
+        if (icon) icon.className = `ph-bold ph-moon text-lg`;
+      }
+    }
+
+    function toggleTheme() {
+      state.theme = state.theme === `dark` ? `light` : `dark`;
+      applyTheme(state.theme);
+      saveState();
+    }
+
+    function isDesktopViewActive() {
+      if (state.layoutMode === `desktop`) return true;
+      if (state.layoutMode === `mobile`) return false;
+      if (window.notebookAppApi && window.notebookAppApi.clientType === `notebooklm-mobile`) return false;
+      return window.innerWidth >= 1024;
+    }
+
+    function applyLayoutClasses() {
+      const isDesk = isDesktopViewActive();
+      const root = document.getElementById(`appRoot`);
+      const headerInner = document.getElementById(`headerInner`);
+      const appShell = document.getElementById(`appShell`);
+      const sidebar = document.getElementById(`desktopSidebar`);
+      const bottomNav = document.getElementById(`bottomNavBar`);
+      const toggleIcon = document.getElementById(`layoutToggleIcon`);
+      const toggleLabel = document.getElementById(`layoutToggleLabel`);
+
+      if (isDesk) {
+        if (root) root.classList.add(`is-desktop`);
+        if (headerInner) { headerInner.classList.remove(`max-w-lg`); headerInner.classList.add(`max-w-7xl`); }
+        if (appShell) { appShell.classList.remove(`max-w-lg`); appShell.classList.add(`max-w-7xl`, `flex`, `items-start`, `gap-6`); }
+        if (sidebar) { sidebar.classList.remove(`hidden`); sidebar.classList.add(`block`); }
+        if (bottomNav) bottomNav.classList.add(`hidden`);
+        if (toggleIcon) toggleIcon.className = `ph-bold ph-device-mobile text-base`;
+        if (toggleLabel) toggleLabel.innerText = `نمای موبایل`;
+      } else {
+        if (root) root.classList.remove(`is-desktop`);
+        if (headerInner) { headerInner.classList.add(`max-w-lg`); headerInner.classList.remove(`max-w-7xl`); }
+        if (appShell) { appShell.classList.add(`max-w-lg`); appShell.classList.remove(`max-w-7xl`, `flex`, `items-start`, `gap-6`); }
+        if (sidebar) { sidebar.classList.add(`hidden`); sidebar.classList.remove(`block`); }
+        if (bottomNav) bottomNav.classList.remove(`hidden`);
+        if (toggleIcon) toggleIcon.className = `ph-bold ph-desktop text-base`;
+        if (toggleLabel) toggleLabel.innerText = `نمای دسکتاپ`;
+      }
+    }
+
+    function toggleLayoutMode() {
+      state.layoutMode = isDesktopViewActive() ? `mobile` : `desktop`;
+      applyLayoutClasses();
+      saveState();
+      renderApp();
+      showToast(state.layoutMode === `desktop` ? `حالت نمایش دسکتاپ فعال شد` : `حالت نمایش موبایل فعال شد`);
+    }
+
+    function switchTab(tab) {
+      state.activeTab = tab;
+      document.querySelectorAll(`.bottom-nav-btn`).forEach(btn => {
+        btn.classList.remove(`active`);
+        const icon = btn.querySelector(`i`);
+        if (icon) icon.className = icon.className.replace(`ph-fill`, `ph`);
+      });
+      const activeBottom = document.getElementById(`nav-${tab}`);
+      if (activeBottom) {
+        activeBottom.classList.add(`active`);
+        const icon = activeBottom.querySelector(`i`);
+        if (icon) icon.className = icon.className.replace(`ph `, `ph-fill `);
+      }
+
+      document.querySelectorAll(`.side-nav-btn`).forEach(btn => {
+        btn.classList.remove(`active`);
+        const icon = btn.querySelector(`i`);
+        if (icon) icon.className = icon.className.replace(`ph-fill`, `ph`);
+      });
+      const activeSide = document.getElementById(`side-${tab}`);
+      if (activeSide) {
+        activeSide.classList.add(`active`);
+        const icon = activeSide.querySelector(`i`);
+        if (icon) icon.className = icon.className.replace(`ph `, `ph-fill `);
+      }
+
+      updateFabForTab(tab);
+      renderApp();
+    }
+
+    function updateFabForTab(tab) {
+      const fabLabel = document.getElementById(`fabLabel`);
+      const fabIcon = document.getElementById(`fabIcon`);
+      const sideLabel = document.getElementById(`sidebarActionLabel`);
+      let labelText = `وام جدید`;
+      let iconClass = `ph-bold ph-plus text-lg`;
+      if (tab === `accounts`) { labelText = `حساب جدید`; iconClass = `ph-bold ph-credit-card text-lg`; }
+      else if (tab === `transactions`) { labelText = `تراکنش جدید`; iconClass = `ph-bold ph-plus text-lg`; }
+      else if (tab === `debts`) { labelText = `شخص جدید`; iconClass = `ph-bold ph-user-plus text-lg`; }
+      if (fabLabel) fabLabel.innerText = labelText;
+      if (fabIcon) fabIcon.className = iconClass;
+      if (sideLabel) sideLabel.innerText = labelText;
+    }
+
+    function handleFabClick() {
+      if (state.activeTab === `accounts`) openAccountModal();
+      else if (state.activeTab === `transactions`) openTransactionModal();
+      else if (state.activeTab === `debts`) openPersonModal();
+      else openLoanModal();
+    }
+
+    function renderApp() {
+      const main = document.getElementById(`appMain`);
+      if (!main) return;
+      if (state.activeTab === `monthly`) main.innerHTML = renderMonthlyView();
+      else if (state.activeTab === `forecast`) main.innerHTML = renderForecastView();
+      else if (state.activeTab === `loans`) main.innerHTML = renderLoansListView();
+      else if (state.activeTab === `accounts`) main.innerHTML = renderAccountsView();
+      else if (state.activeTab === `transactions`) main.innerHTML = renderTransactionsView();
+      else if (state.activeTab === `debts`) main.innerHTML = renderDebtsView();
+    }
+
+    /* ==========================================================================
+       6. تب ۱: اقساط ماهانه و کارت پیشرفت تسویه (با رفع کامل سرریز اعداد)
+    ========================================================================== */
+    function changeSelectedMonth(delta) {
+      const next = addJalaliMonths(state.selectedYear, state.selectedMonth, 1, delta);
+      state.selectedYear = next.year;
+      state.selectedMonth = next.month;
+      renderApp();
+    }
+
+    function jumpToCurrentMonth() {
+      state.selectedYear = TODAY.year >= 1405 ? TODAY.year : 1405;
+      state.selectedMonth = TODAY.year >= 1405 ? TODAY.month : 9;
+      renderApp();
+    }
+
+    function renderMonthlyView() {
+      const summary = getGlobalSummary();
+      const items = getInstallmentsForMonth(state.selectedYear, state.selectedMonth);
+      const totalAmount = items.reduce((s, i) => s + i.amount, 0);
+      const paidAmount = items.filter(i => i.isPaid).reduce((s, i) => s + i.amount, 0);
+      const unpaidAmount = totalAmount - paidAmount;
+      const progressPercent = totalAmount > 0 ? Math.round((paidAmount / totalAmount) * 100) : 100;
+      const isCurrent = (state.selectedYear === TODAY.year && state.selectedMonth === TODAY.month);
+      const isDesk = isDesktopViewActive();
+
+      return `
+        <div class="${isDesk ? `grid grid-cols-12 gap-5 items-start` : `space-y-4`}">
+          <div class="${isDesk ? `col-span-5 space-y-4` : `space-y-4`}">
+            <!-- Hero Status Card -->
+            <div class="status-card" data-status="info">
+              <div class="flex items-center justify-between gap-2">
+                <span style="font-size: var(--label-size); font-weight: 600; color: var(--on-surface-variant);">کل بدهی باقی‌مانده وام‌ها</span>
+                <span class="chip" data-status="info">${toPersianDigits(summary.activeLoansCount)} وام فعال</span>
+              </div>
+              <div class="mt-2 flex items-baseline gap-1.5 flex-wrap">
+                <span class="tabular-nums" style="font-family: var(--font-headline); font-size: var(--display-size); font-weight: 800; color: var(--on-surface);">${formatMoney(summary.totalRemainingDebt)}</span>
+                <span style="font-size: var(--label-size); color: var(--on-surface-variant);">تومان</span>
+              </div>
+            </div>
+
+            <!-- Month Selector & KPI Boxes -->
+            <div class="v-card space-y-4">
+              <div class="flex items-center justify-between gap-2">
+                <button onclick="changeSelectedMonth(-1)" class="v-icon-btn" aria-label="ماه قبل">
+                  <i class="ph-bold ph-caret-right text-lg"></i>
+                </button>
+                <div class="text-center">
+                  <div style="font-family: var(--font-headline); font-weight: 800; font-size: var(--subhead-size); color: var(--on-surface);">
+                    ${JALALI_MONTHS[state.selectedMonth - 1]} ${toPersianDigits(state.selectedYear)}
+                  </div>
+                  ${!isCurrent ? `<button onclick="jumpToCurrentMonth()" class="text-xs font-bold mt-0.5" style="color: var(--primary); background: none; border: none; cursor: pointer;">بازگشت به ماه جاری</button>` : `<span style="font-size: var(--label-size); color: var(--on-surface-variant);">ماه جاری</span>`}
+                </div>
+                <button onclick="changeSelectedMonth(1)" class="v-icon-btn" aria-label="ماه بعد">
+                  <i class="ph-bold ph-caret-left text-lg"></i>
+                </button>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span style="font-weight: 700; color: var(--on-surface-variant);">پیشرفت تسویه ماه</span>
+                  <span class="tabular-nums" style="font-weight: 700; color: var(--tertiary);">${toPersianDigits(progressPercent)}٪ پرداخت شده</span>
+                </div>
+                <div class="w-full h-2.5 rounded-full overflow-hidden" style="background-color: var(--surface-container-low);">
+                  <div class="h-full rounded-full" style="width: ${progressPercent}%; background-color: var(--tertiary); transition: width var(--dur-short) var(--ease-out);"></div>
+                </div>
+              </div>
+
+              <!-- Fixed 3 KPI Boxes: No Number Overflow -->
+              <div class="month-kpi-grid">
+                <div class="month-kpi-box" style="background-color: var(--surface-container-low);">
+                  <span class="month-kpi-label" style="color: var(--on-surface-variant);">مجموع کل ماه</span>
+                  <span class="month-kpi-value" style="color: var(--on-surface);">${formatMoney(totalAmount)}</span>
+                </div>
+                <div class="month-kpi-box" style="background-color: var(--positive-bg);">
+                  <span class="month-kpi-label" style="color: var(--secondary);">پرداخت شده</span>
+                  <span class="month-kpi-value" style="color: var(--secondary);">${formatMoney(paidAmount)}</span>
+                </div>
+                <div class="month-kpi-box" style="background-color: var(--warning-bg);">
+                  <span class="month-kpi-label" style="color: var(--warning-text);">باقی‌مانده</span>
+                  <span class="month-kpi-value" style="color: var(--warning-text);">${formatMoney(unpaidAmount)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="${isDesk ? `col-span-7 space-y-3` : `space-y-3`}">
+            ${items.length === 0 ? `
+              <div class="v-card text-center py-8">
+                <i class="ph ph-confetti text-4xl mb-2" style="color: var(--tertiary);"></i>
+                <p class="text-sm font-bold" style="color: var(--on-surface);">هیچ قسطی در ${JALALI_MONTHS[state.selectedMonth - 1]} ${toPersianDigits(state.selectedYear)} ندارید!</p>
+              </div>
+            ` : items.map(item => renderInstallmentCard(item)).join(``)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderInstallmentCard(item) {
+      const isToday = (item.year === TODAY.year && item.month === TODAY.month && item.day === TODAY.day);
+      const isOverdue = !item.isPaid && (
+        item.year < TODAY.year ||
+        (item.year === TODAY.year && item.month < TODAY.month) ||
+        (item.year === TODAY.year && item.month === TODAY.month && item.day < TODAY.day)
+      );
+
+      let statusChip = ``;
+      let statusAttr = `info`;
+      if (item.isPaid) {
+        statusChip = `<span class="chip">پرداخت شده</span>`;
+        statusAttr = `ok`;
+      } else if (isOverdue) {
+        statusChip = `<span class="chip" data-status="alert">سررسید گذشته</span>`;
+        statusAttr = `alert`;
+      } else if (isToday) {
+        statusChip = `<span class="chip" data-status="warn">سررسید امروز</span>`;
+        statusAttr = `warn`;
+      }
+
+      return `
+        <div class="status-card" data-status="${statusAttr}" style="${item.isPaid ? `opacity: 0.78;` : ``}">
+          <div class="flex items-start justify-between gap-2">
+            <div class="flex items-start gap-3 min-w-0">
+              <div class="shrink-0 flex flex-col items-center justify-center rounded-lg" style="width: 46px; height: 46px; background-color: ${item.isPaid ? `var(--surface-container-low)` : `var(--primary-container)`}; color: ${item.isPaid ? `var(--on-surface-variant)` : `var(--on-primary-container)`};">
+                <span class="text-base font-extrabold leading-none tabular-nums">${toPersianDigits(item.day)}</span>
+                <span class="text-[10px] font-semibold mt-0.5">${JALALI_MONTHS[item.month - 1].slice(0, 4)}</span>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <h4 class="font-bold text-sm ${item.isPaid ? `line-through` : ``}" style="margin: 0; color: ${item.isPaid ? `var(--on-surface-variant)` : `var(--on-surface)`};">${escapeHtml(item.loanTitle)}</h4>
+                  ${statusChip}
+                </div>
+                <div class="flex items-center gap-2 text-xs mt-1 flex-wrap" style="color: var(--on-surface-variant);">
+                  <span class="chip" data-status="neutral">${escapeHtml(item.loanSource)}</span>
+                  <span>قسط ${toPersianDigits(item.installmentNumber)} از ${toPersianDigits(item.totalCount)}</span>
+                </div>
+              </div>
+            </div>
+            <div class="text-left shrink-0">
+              <div class="font-extrabold text-sm tabular-nums" style="color: var(--on-surface);">${formatMoney(item.amount)}</div>
+              <div class="text-[10px]" style="color: var(--on-surface-variant);">تومان</div>
+            </div>
+          </div>
+
+          <div class="mt-3 pt-2.5 flex items-center justify-between gap-2 flex-wrap" style="border-top: 1px solid var(--outline-variant);">
+            ${item.loanCard ? `
+              <button onclick="copyText('${escapeHtml(item.loanCard)}', 'اطلاعات واریز')" class="v-btn v-btn-ghost" style="min-height: 36px; padding: 0.25rem 0.6rem; font-size: 0.72rem;">
+                <i class="ph ph-copy text-sm"></i>
+                <span class="tabular-nums" dir="ltr">${toPersianDigits(item.loanCard)}</span>
+              </button>
+            ` : `<span></span>`}
+
+            ${item.isPaid ? `
+              <button onclick="unpayInstallment('${item.loanId}', ${item.index})" class="v-btn v-btn-secondary" style="min-height: 38px; font-size: 0.78rem;">
+                <i class="ph-bold ph-arrow-counter-clockwise"></i>
+                <span>لغو پرداخت</span>
+              </button>
+            ` : `
+              <button onclick="openPayInstallmentModal('${item.loanId}', ${item.index})" class="v-btn v-btn-primary" style="min-height: 38px; font-size: 0.78rem;">
+                <i class="ph-bold ph-check"></i>
+                <span>پرداخت شد</span>
+              </button>
+            `}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       7. تب ۲: چشم‌انداز آینده
+    ========================================================================== */
+    function renderForecastView() {
+      const baseYear = state.selectedYear;
+      const baseMonth = state.selectedMonth;
+      const forecastData = [];
+      let maxTotal = 0;
+      for (let i = 0; i < 12; i++) {
+        const target = addJalaliMonths(baseYear, baseMonth, 1, i);
+        const items = getInstallmentsForMonth(target.year, target.month);
+        const total = items.reduce((s, item) => s + item.amount, 0);
+        if (total > maxTotal) maxTotal = total;
+        forecastData.push({
+          year: target.year,
+          month: target.month,
+          label: JALALI_MONTHS[target.month - 1],
+          yearLabel: toPersianDigits(target.year),
+          total,
+          millions: total / 1000000,
+          count: items.length
+        });
+      }
+      const next12Total = forecastData.reduce((s, m) => s + m.total, 0);
+      const isDesk = isDesktopViewActive();
+
+      return `
+        <div class="${isDesk ? `grid grid-cols-12 gap-5 items-start` : `space-y-4`}">
+          <div class="${isDesk ? `col-span-6` : ``} v-card">
+            <div class="flex items-center justify-between gap-2">
+              <div>
+                <span style="font-size: var(--label-size); color: var(--on-surface-variant);">مجموع تعهدات ۱۲ ماه آینده</span>
+                <div class="text-xl font-extrabold tabular-nums mt-0.5" style="color: var(--on-surface);">
+                  ${formatMoney(next12Total)} <span class="text-xs font-normal" style="color: var(--on-surface-variant);">تومان</span>
+                </div>
+              </div>
+              <span class="chip" data-status="info">میلیون تومان</span>
+            </div>
+
+            <div class="mt-5 pt-4" style="border-top: 1px solid var(--outline-variant);">
+              <div class="text-xs font-bold mb-3" style="color: var(--on-surface-variant);">نمودار تعهدات ماهانه (روی هر ستون کلیک کنید)</div>
+              <div class="flex items-end justify-between gap-1 pt-5" style="min-height: 190px; border-bottom: 1px solid var(--outline-variant); padding-bottom: 0.25rem;">
+                ${forecastData.map((m, idx) => {
+                  const heightPct = maxTotal > 0 ? Math.max(8, Math.round((m.total / maxTotal) * 100)) : 8;
+                  const milText = m.millions > 0 ? toPersianDigits(Number(m.millions.toFixed(1))) : `۰`;
+                  return `
+                    <button onclick="openForecastMonth(${m.year}, ${m.month})" class="flex-1 flex flex-col items-center justify-end h-full min-w-0 bg-transparent border-0 cursor-pointer p-0">
+                      <span class="text-[9px] font-extrabold tabular-nums mb-1" style="color: var(--on-surface-variant);">${milText}</span>
+                      <div class="w-full rounded-t" style="height: ${Math.round(heightPct * 1.3)}px; background-color: ${idx === 0 ? `var(--data-1)` : `var(--data-2)`}; opacity: ${idx === 0 ? `1` : `0.78`};"></div>
+                      <span class="text-[9px] mt-1.5 font-semibold truncate w-full text-center" style="color: var(--on-surface-variant);">${m.label.slice(0, 3)}</span>
+                    </button>
+                  `;
+                }).join(``)}
+              </div>
+            </div>
+          </div>
+
+          <div class="${isDesk ? `col-span-6 space-y-2.5` : `space-y-2.5`}">
+            <h3 class="font-bold text-sm px-1" style="margin: 0;">جزئیات پرداختی هر ماه</h3>
+            ${forecastData.map((m, idx) => `
+              <div onclick="openForecastMonth(${m.year}, ${m.month})" class="v-card flex items-center justify-between gap-2 cursor-pointer">
+                <div class="flex items-center gap-3 min-w-0">
+                  <div class="shrink-0 flex items-center justify-center rounded-lg font-bold text-xs" style="width: 38px; height: 38px; background-color: ${idx === 0 ? `var(--primary)` : `var(--surface-container-low)`}; color: ${idx === 0 ? `var(--on-primary)` : `var(--on-surface)`};">
+                    ${toPersianDigits(idx + 1)}
+                  </div>
+                  <div class="min-w-0">
+                    <div class="font-bold text-sm flex items-center gap-1.5 flex-wrap">
+                      <span>${m.label} ${m.yearLabel}</span>
+                      ${idx === 0 ? `<span class="chip" data-status="info">ماه جاری</span>` : ``}
+                    </div>
+                    <div class="text-xs" style="color: var(--on-surface-variant);">${toPersianDigits(m.count)} قسط فعال</div>
+                  </div>
+                </div>
+                <div class="text-left shrink-0">
+                  <div class="font-extrabold text-sm tabular-nums">${formatMoney(m.total)}</div>
+                  <div class="text-[10px] tabular-nums" style="color: var(--on-surface-variant);">${toPersianDigits(Number(m.millions.toFixed(1)))} میلیون تومان</div>
+                </div>
+              </div>
+            `).join(``)}
+          </div>
+        </div>
+      `;
+    }
+
+    function openForecastMonth(year, month) {
+      state.selectedYear = year;
+      state.selectedMonth = month;
+      switchTab(`monthly`);
+    }
+
+    /* ==========================================================================
+       8. تب ۳: لیست وام‌ها
+    ========================================================================== */
+    function renderLoansListView() {
+      if (state.loans.length === 0) {
+        return `
+          <div class="v-card text-center py-10">
+            <i class="ph-bold ph-plus-circle text-4xl mb-2" style="color: var(--primary);"></i>
+            <h3 class="font-bold text-base">هنوز وامی ثبت نکرده‌اید</h3>
+            <p class="text-xs mt-1" style="color: var(--on-surface-variant);">برای افزودن اولین وام روی دکمه «وام جدید» کلیک کنید.</p>
+          </div>
+        `;
+      }
+
+      const enrichedLoans = state.loans.map(loan => {
+        const paidCount = Array.isArray(loan.paidIndices) ? loan.paidIndices.length : 0;
+        const remainingCount = Math.max(0, loan.totalCount - paidCount);
+        const isCompleted = remainingCount === 0;
+        const endDate = addJalaliMonths(loan.startYear, loan.startMonth, loan.startDay, loan.totalCount - 1);
+        const endKey = endDate.year * 10000 + endDate.month * 100 + endDate.day;
+        return { loan, paidCount, remainingCount, isCompleted, endDate, endKey };
+      }).sort((a, b) => {
+        if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
+        return a.endKey - b.endKey;
+      });
+
+      const isDesk = isDesktopViewActive();
+      return `
+        <div class="space-y-3">
+          <div class="flex items-center justify-between px-1">
+            <h3 class="font-bold text-sm" style="margin: 0;">وام‌ها (به ترتیب نزدیک‌ترین تسویه)</h3>
+            <span class="chip" data-status="neutral">${toPersianDigits(state.loans.length)} مورد</span>
+          </div>
+          <div class="${isDesk ? `grid grid-cols-2 gap-4` : `space-y-3`}">
+            ${enrichedLoans.map(({ loan, paidCount, remainingCount, isCompleted, endDate }) => {
+              const remainingDebt = remainingCount * loan.amount;
+              const pct = Math.round((paidCount / loan.totalCount) * 100);
+              return `
+                <div class="status-card space-y-3" data-status="${isCompleted ? `ok` : `info`}" style="${isCompleted ? `opacity: 0.78;` : ``}">
+                  <div class="flex items-start justify-between gap-2">
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-2 flex-wrap">
+                        <h4 class="font-bold text-base" style="margin: 0;">${escapeHtml(loan.title)}</h4>
+                        <span class="chip" data-status="neutral">${escapeHtml(loan.source)}</span>
+                        ${isCompleted ? `<span class="chip">تسویه شده</span>` : ``}
+                      </div>
+                      <p class="text-xs mt-1" style="color: var(--on-surface-variant); margin-bottom: 0;">
+                        روز ${toPersianDigits(loan.startDay)} هر ماه • پایان: <strong>${JALALI_MONTHS[endDate.month - 1]} ${toPersianDigits(endDate.year)}</strong>
+                      </p>
+                    </div>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button onclick="openLoanModal('${loan.id}')" class="v-icon-btn" title="ویرایش وام"><i class="ph-bold ph-pencil-simple text-base"></i></button>
+                      <button onclick="deleteLoan('${loan.id}')" class="v-icon-btn danger" title="حذف وام"><i class="ph-bold ph-trash text-base"></i></button>
+                    </div>
+                  </div>
+
+                  <div class="grid grid-cols-2 gap-2 v-inset text-xs">
+                    <div>
+                      <span class="block text-[11px]" style="color: var(--on-surface-variant);">مبلغ هر قسط</span>
+                      <span class="font-extrabold tabular-nums mt-0.5 block">${formatMoney(loan.amount)} تومان</span>
+                    </div>
+                    <div>
+                      <span class="block text-[11px]" style="color: var(--on-surface-variant);">بدهی باقی‌مانده</span>
+                      <span class="font-extrabold tabular-nums mt-0.5 block" style="color: var(--primary);">${formatMoney(remainingDebt)} تومان</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div class="flex justify-between text-xs font-bold mb-1">
+                      <span style="color: var(--on-surface-variant);">${toPersianDigits(paidCount)} از ${toPersianDigits(loan.totalCount)} قسط پرداخت شده</span>
+                      <span class="tabular-nums" style="color: var(--tertiary);">${toPersianDigits(pct)}٪</span>
+                    </div>
+                    <div class="w-full h-2 rounded-full overflow-hidden" style="background-color: var(--surface-container-low);">
+                      <div class="h-full rounded-full" style="width: ${pct}%; background-color: var(--tertiary);"></div>
+                    </div>
+                  </div>
+
+                  <button onclick="openLoanDetailModal('${loan.id}')" class="v-btn v-btn-secondary w-full">
+                    <i class="ph-bold ph-list-checks text-base"></i>
+                    <span>مشاهده و مدیریت تک‌تک اقساط</span>
+                  </button>
+                </div>
+              `;
+            }).join(``)}
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       9. تب ۴: حساب‌ها و کارت‌ها + دکمه سریع انتقال بین حساب‌ها
+    ========================================================================== */
+    function renderAccountsView() {
+      const totalBalance = state.accounts.reduce((sum, a) => sum + getAccountBalance(a.id), 0);
+      const isDesk = isDesktopViewActive();
+
+      return `
+        <div class="status-card" data-status="${totalBalance < 0 ? `alert` : `ok`}">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div>
+              <span style="font-size: var(--label-size); color: var(--on-surface-variant); font-weight: 600;">موجودی کل حساب‌ها و کارت‌ها</span>
+              <div class="mt-1 flex items-baseline gap-1.5 flex-wrap">
+                <span class="tabular-nums" style="font-family: var(--font-headline); font-size: var(--display-size); font-weight: 800; color: ${totalBalance < 0 ? `var(--error)` : `var(--tertiary)`};">${formatMoney(totalBalance)}</span>
+                <span class="text-xs" style="color: var(--on-surface-variant);">تومان</span>
+              </div>
+            </div>
+            <button onclick="openTransactionModal('transfer')" class="v-btn v-btn-primary">
+              <i class="ph-bold ph-arrows-left-right text-base"></i>
+              <span>انتقال وجه بین حساب‌ها</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="${isDesk ? `grid grid-cols-2 gap-4` : `space-y-3`}">
+          ${state.accounts.length === 0 ? `
+            <div class="col-span-2 v-card text-center py-8">
+              <p class="text-sm font-bold">هنوز حسابی ثبت نکرده‌اید</p>
+            </div>
+          ` : state.accounts.map(acc => {
+            const bal = getAccountBalance(acc.id);
+            const accent = acc.color || `#0f7c8a`;
+            return `
+              <div onclick="openAccountDetailModal('${acc.id}')" class="v-card cursor-pointer space-y-3" style="border-inline-start: 5px solid ${accent};">
+                <div class="flex items-start justify-between gap-2">
+                  <div class="min-w-0">
+                    <span class="chip" data-status="neutral">حساب / کارت</span>
+                    <h4 class="font-extrabold text-base mt-1.5" style="margin-bottom: 0;">${escapeHtml(acc.name)}</h4>
+                  </div>
+                  <div class="flex items-center gap-1" onclick="event.stopPropagation()">
+                    <button onclick="openAccountModal('${acc.id}')" class="v-icon-btn" title="ویرایش حساب"><i class="ph-bold ph-pencil-simple text-sm"></i></button>
+                    <button onclick="deleteAccount('${acc.id}')" class="v-icon-btn danger" title="حذف حساب"><i class="ph-bold ph-trash text-sm"></i></button>
+                  </div>
+                </div>
+
+                ${acc.cardNumber ? `
+                  <div class="flex items-center gap-2 text-xs tabular-nums" dir="ltr" onclick="event.stopPropagation()" style="color: var(--on-surface-variant);">
+                    <span>${toPersianDigits(acc.cardNumber)}</span>
+                    <button onclick="copyText('${escapeHtml(acc.cardNumber)}', 'شماره کارت')" class="v-icon-btn" style="min-width: 32px; min-height: 32px;"><i class="ph ph-copy text-xs"></i></button>
+                  </div>
+                ` : ``}
+
+                <div class="pt-2.5 flex items-end justify-between gap-2" style="border-top: 1px solid var(--outline-variant);">
+                  <div>
+                    <span class="text-[11px] block" style="color: var(--on-surface-variant);">موجودی فعلی</span>
+                    <span class="text-lg font-extrabold tabular-nums" style="color: ${bal < 0 ? `var(--error)` : `var(--on-surface)`};">${formatMoney(bal)} <span class="text-xs font-normal">تومان</span></span>
+                  </div>
+                  <span class="chip" data-status="info">گردش حساب <i class="ph-bold ph-caret-left"></i></span>
+                </div>
+              </div>
+            `;
+          }).join(``)}
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       10. تب ۵: تراکنش‌ها (پشتیبانی از ویرایش، انتقال وجه، نمودار و فیلتر)
+    ========================================================================== */
+    function changeTxMonth(delta) {
+      const next = addJalaliMonths(state.txSelectedYear, state.txSelectedMonth, 1, delta);
+      state.txSelectedYear = next.year;
+      state.txSelectedMonth = next.month;
+      state.selectedChartCategoryId = null;
+      renderApp();
+    }
+
+    function toggleTxCategoryFilter(catId) {
+      const idx = state.txSelectedCategories.indexOf(catId);
+      if (idx > -1) state.txSelectedCategories.splice(idx, 1);
+      else state.txSelectedCategories.push(catId);
+      state.selectedChartCategoryId = null;
+      renderApp();
+    }
+
+    function clearTxCategoryFilters() {
+      state.txSelectedCategories = [];
+      state.selectedChartCategoryId = null;
+      renderApp();
+    }
+
+    function setTxListTypeFilter(type) {
+      state.txFilterType = type;
+      renderApp();
+    }
+
+    function selectChartCategory(catId) {
+      state.selectedChartCategoryId = (state.selectedChartCategoryId === catId) ? null : catId;
+      renderApp();
+    }
+
+    function renderTransactionsView() {
+      const monthTxs = state.transactions.filter(t => t.year === state.txSelectedYear && t.month === state.txSelectedMonth);
+      const nonTransferTxs = monthTxs.filter(t => t.type !== `transfer`);
+      const filteredNonTransfer = state.txSelectedCategories.length > 0
+        ? nonTransferTxs.filter(t => state.txSelectedCategories.includes(t.categoryId))
+        : nonTransferTxs;
+
+      const totalIncome = filteredNonTransfer.filter(t => t.type === `income`).reduce((s, t) => s + Number(t.amount), 0);
+      const totalExpense = filteredNonTransfer.filter(t => t.type === `expense`).reduce((s, t) => s + Number(t.amount), 0);
+
+      const expenseTxs = filteredNonTransfer.filter(t => t.type === `expense`);
+      const catTotalsMap = {};
+      expenseTxs.forEach(t => {
+        const cid = t.categoryId || `uncategorized`;
+        catTotalsMap[cid] = (catTotalsMap[cid] || 0) + Number(t.amount);
+      });
+
+      const chartItems = Object.keys(catTotalsMap).map(cid => {
+        const cat = state.categories.find(c => c.id === cid) || { id: cid, name: `سایر`, emoji: `📦`, color: `#7b9198` };
+        const amount = catTotalsMap[cid];
+        const pct = totalExpense > 0 ? Math.round((amount / totalExpense) * 100) : 0;
+        return { cat, amount, pct };
+      }).sort((a, b) => b.amount - a.amount);
+
+      const conicStops = [];
+      let currentPct = 0;
+      chartItems.forEach(item => {
+        const slice = totalExpense > 0 ? (item.amount / totalExpense) * 100 : 0;
+        const nextPct = currentPct + slice;
+        conicStops.push(`${item.cat.color || `#0f7c8a`} ${currentPct.toFixed(2)}% ${nextPct.toFixed(2)}%`);
+        currentPct = nextPct;
+      });
+      const donutStyle = conicStops.length > 0 ? `background: conic-gradient(${conicStops.join(`, `)});` : `background: var(--outline-variant);`;
+
+      let subcatBreakdownHtml = ``;
+      if (state.selectedChartCategoryId) {
+        const selCat = state.categories.find(c => c.id === state.selectedChartCategoryId);
+        const selTxs = expenseTxs.filter(t => t.categoryId === state.selectedChartCategoryId);
+        const selTotal = selTxs.reduce((s, t) => s + Number(t.amount), 0);
+        const subMap = {};
+        selTxs.forEach(t => {
+          const subName = t.subcategory || `بدون زیردسته`;
+          subMap[subName] = (subMap[subName] || 0) + Number(t.amount);
+        });
+        const subList = Object.entries(subMap).sort((a, b) => b[1] - a[1]);
+        subcatBreakdownHtml = `
+          <div class="v-inset mt-3 space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="font-bold">ریز زیردسته‌های ${selCat ? `${selCat.emoji} ${escapeHtml(selCat.name)}` : ``}</span>
+              <button onclick="selectChartCategory(null)" class="v-icon-btn" style="min-width: 28px; min-height: 28px;"><i class="ph-bold ph-x text-xs"></i></button>
+            </div>
+            ${subList.map(([subName, subAmt]) => {
+              const subPct = selTotal > 0 ? Math.round((subAmt / selTotal) * 100) : 0;
+              return `
+                <div class="flex items-center justify-between text-xs">
+                  <span style="color: var(--on-surface-variant);">${escapeHtml(subName)} (${toPersianDigits(subPct)}٪)</span>
+                  <span class="font-extrabold tabular-nums">${formatMoney(subAmt)} تومان</span>
+                </div>
+              `;
+            }).join(``)}
+          </div>
+        `;
+      }
+
+      const visibleTxs = monthTxs
+        .filter(t => {
+          if (state.txSelectedCategories.length > 0 && t.type !== `transfer` && !state.txSelectedCategories.includes(t.categoryId)) return false;
+          if (state.txSelectedCategories.length > 0 && t.type === `transfer`) return false;
+          if (state.txFilterType === `all`) return true;
+          return t.type === state.txFilterType;
+        })
+        .sort((a, b) => b.day - a.day);
+
+      const isDesk = isDesktopViewActive();
+
+      return `
+        <div class="flex items-center gap-2 flex-wrap">
+          <button onclick="openTransactionModal('expense')" class="v-btn v-btn-primary flex-1">
+            <i class="ph-bold ph-plus-circle text-base"></i>
+            <span>تراکنش جدید</span>
+          </button>
+          <button onclick="openTransactionModal('transfer')" class="v-btn v-btn-secondary">
+            <i class="ph-bold ph-arrows-left-right text-base"></i>
+            <span>انتقال بین حساب‌ها</span>
+          </button>
+          <button onclick="openCategoryModal()" class="v-btn v-btn-ghost">
+            <i class="ph-bold ph-tag text-base" style="color: var(--primary);"></i>
+            <span>دسته‌ها</span>
+          </button>
+        </div>
+
+        <div class="${isDesk ? `grid grid-cols-12 gap-5 items-start` : `space-y-4`}">
+          <div class="${isDesk ? `col-span-5 space-y-4` : `space-y-4`}">
+            <div class="v-card space-y-3">
+              <div class="flex items-center justify-between">
+                <button onclick="changeTxMonth(-1)" class="v-icon-btn" aria-label="ماه قبل"><i class="ph-bold ph-caret-right"></i></button>
+                <span class="font-extrabold text-sm">${JALALI_MONTHS[state.txSelectedMonth - 1]} ${toPersianDigits(state.txSelectedYear)}</span>
+                <button onclick="changeTxMonth(1)" class="v-icon-btn" aria-label="ماه بعد"><i class="ph-bold ph-caret-left"></i></button>
+              </div>
+
+              <div>
+                <div class="flex items-center justify-between text-xs mb-1.5">
+                  <span style="color: var(--on-surface-variant);">فیلتر دسته‌بندی‌ها (چندانتخابی):</span>
+                  ${state.txSelectedCategories.length > 0 ? `<button onclick="clearTxCategoryFilters()" class="font-bold" style="color: var(--error); background: none; border: none; cursor: pointer;">پاک کردن</button>` : ``}
+                </div>
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-1">
+                  ${state.categories.map(cat => {
+                    const isSelected = state.txSelectedCategories.includes(cat.id);
+                    return `
+                      <button onclick="toggleTxCategoryFilter('${cat.id}')" class="shrink-0 chip cursor-pointer" style="border: 1px solid ${isSelected ? cat.color : `var(--outline-variant)`}; background-color: ${isSelected ? cat.color : `var(--background)`}; color: ${isSelected ? `#ffffff` : `var(--on-surface)`}; min-height: 32px;">
+                        <span>${cat.emoji || `📁`}</span>
+                        <span>${escapeHtml(cat.name)}</span>
+                      </button>
+                    `;
+                  }).join(``)}
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-2 pt-2" style="border-top: 1px solid var(--outline-variant);">
+                <div class="v-inset" style="background-color: var(--positive-bg);">
+                  <span class="text-[11px] block" style="color: var(--secondary);">مجموع درآمد</span>
+                  <span class="text-sm font-extrabold tabular-nums mt-0.5 block" style="color: var(--secondary);">+${formatMoney(totalIncome)}</span>
+                </div>
+                <div class="v-inset" style="background-color: var(--error-bg);">
+                  <span class="text-[11px] block" style="color: var(--error);">مجموع هزینه</span>
+                  <span class="text-sm font-extrabold tabular-nums mt-0.5 block" style="color: var(--error);">-${formatMoney(totalExpense)}</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="v-card">
+              <div class="flex items-center justify-between mb-3">
+                <h3 class="font-bold text-xs" style="margin: 0;">نمودار مخارج بر اساس دسته‌بندی</h3>
+                <span class="text-[10px]" style="color: var(--on-surface-variant);">برای جزئیات کلیک کنید</span>
+              </div>
+              ${chartItems.length === 0 ? `
+                <p class="text-xs text-center py-6" style="color: var(--on-surface-variant);">هزینه‌ای برای نمایش وجود ندارد.</p>
+              ` : `
+                <div class="flex items-center gap-4">
+                  <div class="rounded-full shrink-0 relative flex items-center justify-center" style="width: 112px; height: 112px; ${donutStyle}">
+                    <div class="rounded-full flex flex-col items-center justify-center text-center px-1" style="width: 66px; height: 66px; background-color: var(--background);">
+                      <span class="text-[9px]" style="color: var(--on-surface-variant);">کل خرج</span>
+                      <span class="text-[10px] font-extrabold tabular-nums">${toPersianDigits(Number((totalExpense / 1000000).toFixed(1)))} م</span>
+                    </div>
+                  </div>
+                  <div class="flex-1 space-y-1.5 max-h-36 overflow-y-auto">
+                    ${chartItems.map(item => `
+                      <button onclick="selectChartCategory('${item.cat.id}')" class="w-full flex items-center justify-between text-xs p-1.5 rounded-lg border-0 cursor-pointer text-right" style="background-color: ${state.selectedChartCategoryId === item.cat.id ? `var(--surface-container)` : `transparent`}; color: var(--on-surface);">
+                        <div class="flex items-center gap-1.5 min-w-0">
+                          <span class="w-2.5 h-2.5 rounded-full shrink-0" style="background-color: ${item.cat.color || `#0f7c8a`};"></span>
+                          <span class="truncate font-semibold">${item.cat.emoji || ``} ${escapeHtml(item.cat.name)}</span>
+                        </div>
+                        <span class="font-bold tabular-nums shrink-0 mr-1">${toPersianDigits(item.pct)}٪</span>
+                      </button>
+                    `).join(``)}
+                  </div>
+                </div>
+                ${subcatBreakdownHtml}
+              `}
+            </div>
+          </div>
+
+          <div class="${isDesk ? `col-span-7 space-y-2.5` : `space-y-2.5`}">
+            <div class="flex items-center justify-between gap-2 flex-wrap px-1">
+              <h3 class="font-bold text-sm" style="margin: 0;">تراکنش‌ها (${toPersianDigits(visibleTxs.length)})</h3>
+              <div class="flex items-center gap-1 p-1 rounded-lg text-xs font-bold" style="background-color: var(--background); border: 1px solid var(--outline-variant);">
+                <button onclick="setTxListTypeFilter('all')" class="px-2.5 py-1 rounded border-0 cursor-pointer" style="background-color: ${state.txFilterType === `all` ? `var(--primary)` : `transparent`}; color: ${state.txFilterType === `all` ? `var(--on-primary)` : `var(--on-surface-variant)`};">همه</button>
+                <button onclick="setTxListTypeFilter('expense')" class="px-2.5 py-1 rounded border-0 cursor-pointer" style="background-color: ${state.txFilterType === `expense` ? `var(--error)` : `transparent`}; color: ${state.txFilterType === `expense` ? `var(--on-error)` : `var(--on-surface-variant)`};">هزینه</button>
+                <button onclick="setTxListTypeFilter('income')" class="px-2.5 py-1 rounded border-0 cursor-pointer" style="background-color: ${state.txFilterType === `income` ? `var(--tertiary)` : `transparent`}; color: ${state.txFilterType === `income` ? `var(--on-primary)` : `var(--on-surface-variant)`};">درآمد</button>
+                <button onclick="setTxListTypeFilter('transfer')" class="px-2.5 py-1 rounded border-0 cursor-pointer" style="background-color: ${state.txFilterType === `transfer` ? `var(--primary)` : `transparent`}; color: ${state.txFilterType === `transfer` ? `var(--on-primary)` : `var(--on-surface-variant)`};">انتقال</button>
+              </div>
+            </div>
+
+            ${visibleTxs.length === 0 ? `
+              <div class="v-card text-center py-8">
+                <p class="text-xs" style="color: var(--on-surface-variant);">تراکنشی مطابق فیلتر انتخابی یافت نشد.</p>
+              </div>
+            ` : visibleTxs.map(tx => renderTransactionCard(tx)).join(``)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTransactionCard(tx, contextAccountId = null) {
+      if (tx.type === `transfer`) {
+        const fromAcc = state.accounts.find(a => a.id === tx.fromAccountId);
+        const toAcc = state.accounts.find(a => a.id === tx.toAccountId);
+        const fromName = fromAcc ? escapeHtml(fromAcc.name) : `حساب حذف‌شده`;
+        const toName = toAcc ? escapeHtml(toAcc.name) : `حساب حذف‌شده`;
+
+        let amountSign = `⇄ `;
+        let amountColor = `var(--primary)`;
+        if (contextAccountId === tx.fromAccountId) { amountSign = `-`; amountColor = `var(--error)`; }
+        else if (contextAccountId === tx.toAccountId) { amountSign = `+`; amountColor = `var(--tertiary)`; }
+
+        return `
+          <div class="v-card flex items-center justify-between gap-2">
+            <div class="flex items-center gap-3 min-w-0">
+              <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0" style="background-color: var(--primary-container); color: var(--on-primary-container);">
+                <i class="ph-bold ph-arrows-left-right"></i>
+              </div>
+              <div class="min-w-0">
+                <div class="flex items-center gap-1.5 flex-wrap">
+                  <span class="font-bold text-sm">انتقال داخلی</span>
+                  <span class="chip" data-status="info">${fromName} ← ${toName}</span>
+                </div>
+                <div class="text-xs mt-0.5 truncate" style="color: var(--on-surface-variant);">
+                  ${toPersianDigits(tx.day)} ${JALALI_MONTHS[tx.month - 1]} ${toPersianDigits(tx.year)} ${tx.note ? `• ${escapeHtml(tx.note)}` : ``}
+                </div>
+              </div>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+              <div class="text-left ml-1">
+                <div class="font-extrabold text-sm tabular-nums" style="color: ${amountColor};">${amountSign}${formatMoney(tx.amount)}</div>
+                <div class="text-[10px]" style="color: var(--on-surface-variant);">تومان</div>
+              </div>
+              <button onclick="openEditTransactionModal('${tx.id}')" class="v-icon-btn" style="min-width: 36px; min-height: 36px;" title="ویرایش تراکنش" aria-label="ویرایش تراکنش">
+                <i class="ph-bold ph-pencil-simple text-sm"></i>
+              </button>
+              <button onclick="deleteTransaction('${tx.id}')" class="v-icon-btn danger" style="min-width: 36px; min-height: 36px;" title="حذف تراکنش" aria-label="حذف تراکنش">
+                <i class="ph-bold ph-trash text-sm"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }
+
+      const cat = state.categories.find(c => c.id === tx.categoryId) || { name: `دسته‌بندی‌نشده`, emoji: `💸`, color: `#7b9198` };
+      const acc = state.accounts.find(a => a.id === tx.accountId);
+      const person = tx.personId ? state.people.find(p => p.id === tx.personId) : null;
+      const isIncome = tx.type === `income`;
+
+      return `
+        <div class="v-card flex items-center justify-between gap-2">
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-10 h-10 rounded-lg flex items-center justify-center text-lg shrink-0" style="background-color: ${cat.color || `#0f7c8a`}22; border: 1px solid ${cat.color || `#0f7c8a`}44;">
+              ${cat.emoji || `💸`}
+            </div>
+            <div class="min-w-0">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <span class="font-bold text-sm">${escapeHtml(cat.name)}</span>
+                ${tx.subcategory ? `<span class="chip" data-status="neutral">${escapeHtml(tx.subcategory)}</span>` : ``}
+                ${person ? `<span class="chip" data-status="warn">👤 ${escapeHtml(person.name)}</span>` : ``}
+              </div>
+              <div class="text-xs mt-0.5 truncate" style="color: var(--on-surface-variant);">
+                ${toPersianDigits(tx.day)} ${JALALI_MONTHS[tx.month - 1]} • ${acc ? escapeHtml(acc.name) : `حساب نامشخص`} ${tx.note ? `• ${escapeHtml(tx.note)}` : ``}
+              </div>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 shrink-0">
+            <div class="text-left ml-1">
+              <div class="font-extrabold text-sm tabular-nums" style="color: ${isIncome ? `var(--tertiary)` : `var(--error)`};">
+                ${isIncome ? `+` : `-`}${formatMoney(tx.amount)}
+              </div>
+              <div class="text-[10px]" style="color: var(--on-surface-variant);">تومان</div>
+            </div>
+            <button onclick="openEditTransactionModal('${tx.id}')" class="v-icon-btn" style="min-width: 36px; min-height: 36px;" title="ویرایش تراکنش" aria-label="ویرایش تراکنش">
+              <i class="ph-bold ph-pencil-simple text-sm"></i>
+            </button>
+            <button onclick="deleteTransaction('${tx.id}')" class="v-icon-btn danger" style="min-width: 36px; min-height: 36px;" title="حذف تراکنش" aria-label="حذف تراکنش">
+              <i class="ph-bold ph-trash text-sm"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       11. تب ۶: قرض و قوله
+    ========================================================================== */
+    function renderDebtsView() {
+      let totalReceivable = 0;
+      let totalPayable = 0;
+      const peopleStats = state.people.map(p => {
+        const net = getPersonNetBalance(p.id);
+        if (net > 0) totalReceivable += net;
+        else if (net < 0) totalPayable += Math.abs(net);
+        return { person: p, net };
+      });
+      const isDesk = isDesktopViewActive();
+
+      return `
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div class="status-card" data-status="ok">
+            <span class="text-xs font-semibold block" style="color: var(--on-surface-variant);">مجموع طلب شما از دیگران</span>
+            <span class="text-xl font-extrabold tabular-nums mt-1 block" style="color: var(--tertiary);">${formatMoney(totalReceivable)} <span class="text-xs font-normal">تومان</span></span>
+          </div>
+          <div class="status-card" data-status="alert">
+            <span class="text-xs font-semibold block" style="color: var(--on-surface-variant);">مجموع بدهی شما به دیگران</span>
+            <span class="text-xl font-extrabold tabular-nums mt-1 block" style="color: var(--error);">${formatMoney(totalPayable)} <span class="text-xs font-normal">تومان</span></span>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between px-1">
+          <h3 class="font-bold text-sm" style="margin: 0;">لیست افراد (${toPersianDigits(state.people.length)})</h3>
+          <button onclick="openPersonModal()" class="v-btn v-btn-secondary" style="min-height: 38px;">
+            <i class="ph-bold ph-user-plus"></i>
+            <span>افزودن شخص</span>
+          </button>
+        </div>
+
+        <div class="${isDesk ? `grid grid-cols-2 gap-3` : `space-y-3`}">
+          ${peopleStats.length === 0 ? `
+            <div class="col-span-2 v-card text-center py-8">
+              <p class="text-sm font-bold">هنوز شخصی برای قرض و قوله ثبت نشده است</p>
+            </div>
+          ` : peopleStats.map(({ person, net }) => {
+            let statusChip = `<span class="chip" data-status="neutral">تسویه شده</span>`;
+            let amountColor = `var(--on-surface-variant)`;
+            if (net > 0) {
+              statusChip = `<span class="chip">بدهکار به شما (طلب شما)</span>`;
+              amountColor = `var(--tertiary)`;
+            } else if (net < 0) {
+              statusChip = `<span class="chip" data-status="alert">طلبکار از شما (بدهی شما)</span>`;
+              amountColor = `var(--error)`;
+            }
+            return `
+              <div onclick="openPersonDetailModal('${person.id}')" class="v-card flex items-center justify-between gap-2 cursor-pointer">
+                <div class="min-w-0">
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <h4 class="font-bold text-sm" style="margin: 0;">${escapeHtml(person.name)}</h4>
+                    ${statusChip}
+                  </div>
+                  ${person.note ? `<p class="text-xs mt-1" style="color: var(--on-surface-variant); margin-bottom: 0;">${escapeHtml(person.note)}</p>` : ``}
+                </div>
+                <div class="text-left shrink-0">
+                  <div class="font-extrabold text-sm tabular-nums" style="color: ${amountColor};">${formatMoney(Math.abs(net))}</div>
+                  <div class="text-[10px]" style="color: var(--on-surface-variant);">تومان</div>
+                </div>
+              </div>
+            `;
+          }).join(``)}
+        </div>
+      `;
+    }
+
+    /* ==========================================================================
+       12. منطق مودال‌ها: تاریخ، وام، پرداخت قسط، حساب‌ها، تراکنش (افزودن/ویرایش/انتقال)، دسته‌ها و اشخاص
+    ========================================================================== */
+    function initDateDropdowns() {
+      const dayEls = [document.getElementById(`loanStartDay`), document.getElementById(`txDay`)];
+      const monthEls = [document.getElementById(`loanStartMonth`), document.getElementById(`txMonth`)];
+      const yearEls = [document.getElementById(`loanStartYear`), document.getElementById(`txYear`)];
+
+      let daysHtml = ``;
+      for (let d = 1; d <= 31; d++) daysHtml += `<option value="${d}">${toPersianDigits(d)}</option>`;
+      let monthsHtml = ``;
+      JALALI_MONTHS.forEach((m, idx) => { monthsHtml += `<option value="${idx + 1}">${m}</option>`; });
+      let yearsHtml = ``;
+      for (let y = 1398; y <= 1412; y++) yearsHtml += `<option value="${y}">${toPersianDigits(y)}</option>`;
+
+      dayEls.forEach(el => { if (el) el.innerHTML = daysHtml; });
+      monthEls.forEach(el => { if (el) el.innerHTML = monthsHtml; });
+      yearEls.forEach(el => { if (el) el.innerHTML = yearsHtml; });
+
+      [`loanTotalCount`, `loanStartMonth`, `loanStartYear`].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener(`input`, updateEndDatePreview);
+      });
+    }
+
+    function updateEndDatePreview() {
+      const count = parseInt(document.getElementById(`loanTotalCount`).value, 10) || 0;
+      const month = parseInt(document.getElementById(`loanStartMonth`).value, 10) || TODAY.month;
+      const year = parseInt(document.getElementById(`loanStartYear`).value, 10) || TODAY.year;
+      const preview = document.getElementById(`loanEndPreview`);
+      if (!preview) return;
+      if (count > 0) {
+        const end = addJalaliMonths(year, month, 1, count - 1);
+        preview.innerHTML = `آخرین قسط: <strong>${JALALI_MONTHS[end.month - 1]} ${toPersianDigits(end.year)}</strong>`;
+      } else {
+        preview.innerHTML = ``;
+      }
+    }
+
+    function openLoanModal(editId = null) {
+      const form = document.getElementById(`loanForm`);
+      if (form) form.reset();
+      if (editId) {
+        const loan = state.loans.find(l => l.id === editId);
+        if (!loan) return;
+        document.getElementById(`loanModalTitle`).innerText = `ویرایش وام`;
+        document.getElementById(`loanId`).value = loan.id;
+        document.getElementById(`loanTitle`).value = loan.title;
+        document.getElementById(`loanSource`).value = loan.source;
+        document.getElementById(`loanAmount`).value = Number(loan.amount).toLocaleString(`en-US`);
+        document.getElementById(`loanTotalCount`).value = loan.totalCount;
+        document.getElementById(`loanPaidCount`).value = Array.isArray(loan.paidIndices) ? loan.paidIndices.length : 0;
+        document.getElementById(`loanStartDay`).value = loan.startDay;
+        document.getElementById(`loanStartMonth`).value = loan.startMonth;
+        document.getElementById(`loanStartYear`).value = loan.startYear;
+        document.getElementById(`loanCard`).value = loan.card || ``;
+      } else {
+        document.getElementById(`loanModalTitle`).innerText = `ثبت وام یا قسط جدید`;
+        document.getElementById(`loanId`).value = ``;
+        document.getElementById(`loanStartDay`).value = TODAY.day;
+        document.getElementById(`loanStartMonth`).value = TODAY.month;
+        document.getElementById(`loanStartYear`).value = TODAY.year;
+      }
+      updateEndDatePreview();
+      document.getElementById(`loanModal`).classList.remove(`hidden`);
+    }
+
+    function saveLoan(event) {
+      event.preventDefault();
+      const id = document.getElementById(`loanId`).value;
+      const title = document.getElementById(`loanTitle`).value.trim();
+      const source = document.getElementById(`loanSource`).value.trim();
+      const amount = parseInt(toEnglishDigits(document.getElementById(`loanAmount`).value).replace(/[^\d]/g, ``), 10);
+      const totalCount = parseInt(document.getElementById(`loanTotalCount`).value, 10);
+      const paidCount = Math.min(totalCount, Math.max(0, parseInt(document.getElementById(`loanPaidCount`).value, 10) || 0));
+      const startDay = parseInt(document.getElementById(`loanStartDay`).value, 10);
+      const startMonth = parseInt(document.getElementById(`loanStartMonth`).value, 10);
+      const startYear = parseInt(document.getElementById(`loanStartYear`).value, 10);
+      const card = document.getElementById(`loanCard`).value.trim();
+
+      if (!title || !source || !amount || !totalCount) {
+        showToast(`فیلدهای ضروری را تکمیل کنید`, `error`);
+        return;
+      }
+
+      if (id) {
+        const existing = state.loans.find(l => l.id === id);
+        if (existing) {
+          Object.assign(existing, { title, source, amount, totalCount, startDay, startMonth, startYear, card });
+          if (existing.paidIndices.length !== paidCount) {
+            existing.paidIndices = Array.from({ length: paidCount }, (_, i) => i);
+          }
+        }
+        showToast(`وام ویرایش شد`);
+      } else {
+        state.loans.unshift({
+          id: `loan-` + Date.now(),
+          title, source, amount, totalCount, startDay, startMonth, startYear, card,
+          paidIndices: Array.from({ length: paidCount }, (_, i) => i)
+        });
+        showToast(`وام جدید ثبت شد!`);
+      }
+      saveState();
+      closeModal(`loanModal`);
+      renderApp();
+    }
+
+    function deleteLoan(loanId) {
+      state.loans = state.loans.filter(l => l.id !== loanId);
+      saveState();
+      renderApp();
+      showToast(`وام حذف شد`);
+    }
+
+    function openPayInstallmentModal(loanId, index) {
+      const loan = state.loans.find(l => l.id === loanId);
+      if (!loan) return;
+      document.getElementById(`payInstLoanId`).value = loanId;
+      document.getElementById(`payInstIndex`).value = index;
+      document.getElementById(`payInstSubtitle`).innerText = `${loan.title} (${loan.source}) - قسط ${toPersianDigits(index + 1)}`;
+      document.getElementById(`payInstAmountDisplay`).innerText = `${formatMoney(loan.amount)} تومان`;
+
+      const accSelect = document.getElementById(`payInstAccountSelect`);
+      accSelect.innerHTML = `<option value="">-- بدون کسر از حساب (فقط تیک قسط) --</option>` +
+        state.accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)} (موجودی: ${formatMoney(getAccountBalance(a.id))})</option>`).join(``);
+      if (state.accounts.length > 0) accSelect.value = state.accounts[0].id;
+
+      const expenseCats = state.categories.filter(c => c.type === `expense`);
+      const catSelect = document.getElementById(`payInstCategorySelect`);
+      catSelect.innerHTML = expenseCats.map(c => `<option value="${c.id}">${c.emoji || ``} ${escapeHtml(c.name)}</option>`).join(``);
+      const defaultLoanCat = expenseCats.find(c => c.id === `cat-loan`) || expenseCats[0];
+      if (defaultLoanCat) catSelect.value = defaultLoanCat.id;
+      onPayInstCategoryChange();
+      document.getElementById(`payInstallmentModal`).classList.remove(`hidden`);
+    }
+
+    function onPayInstCategoryChange() {
+      const catId = document.getElementById(`payInstCategorySelect`).value;
+      const cat = state.categories.find(c => c.id === catId);
+      const wrap = document.getElementById(`payInstSubcatWrapper`);
+      const subSel = document.getElementById(`payInstSubcatSelect`);
+      if (cat && Array.isArray(cat.subcategories) && cat.subcategories.length > 0) {
+        wrap.classList.remove(`hidden`);
+        subSel.innerHTML = `<option value="">-- انتخاب زیردسته --</option>` +
+          cat.subcategories.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(``);
+      } else {
+        wrap.classList.add(`hidden`);
+        subSel.innerHTML = ``;
+      }
+    }
+
+    function confirmPayInstallment(event) {
+      event.preventDefault();
+      const loanId = document.getElementById(`payInstLoanId`).value;
+      const index = parseInt(document.getElementById(`payInstIndex`).value, 10);
+      const accountId = document.getElementById(`payInstAccountSelect`).value;
+      const categoryId = document.getElementById(`payInstCategorySelect`).value;
+      const subcategory = document.getElementById(`payInstSubcatSelect`).value;
+
+      const loan = state.loans.find(l => l.id === loanId);
+      if (!loan) return;
+      if (!Array.isArray(loan.paidIndices)) loan.paidIndices = [];
+      if (!loan.paidIndices.includes(index)) loan.paidIndices.push(index);
+
+      if (accountId) {
+        state.transactions.unshift({
+          id: `tx-inst-` + Date.now(),
+          type: `expense`,
+          amount: loan.amount,
+          accountId,
+          categoryId,
+          subcategory,
+          personId: null,
+          year: TODAY.year,
+          month: TODAY.month,
+          day: TODAY.day,
+          note: `پرداخت قسط ${toPersianDigits(index + 1)} ${loan.title}`,
+          linkedLoanId: loanId,
+          linkedInstallmentIndex: index
+        });
+      }
+      saveState();
+      closeModal(`payInstallmentModal`);
+      renderApp();
+      showToast(`پرداخت قسط ثبت شد!`);
+    }
+
+    function unpayInstallment(loanId, index) {
+      const loan = state.loans.find(l => l.id === loanId);
+      if (!loan || !Array.isArray(loan.paidIndices)) return;
+      loan.paidIndices = loan.paidIndices.filter(i => i !== index);
+      state.transactions = state.transactions.filter(t => !(t.linkedLoanId === loanId && t.linkedInstallmentIndex === index));
+      saveState();
+      renderApp();
+      showToast(`پرداخت قسط لغو شد`);
+    }
+
+    function openLoanDetailModal(loanId) {
+      const loan = state.loans.find(l => l.id === loanId);
+      if (!loan) return;
+      const schedule = getLoanSchedule(loan);
+      const container = document.getElementById(`detailModalContent`);
+      container.innerHTML = `
+        <div class="px-5 py-4 flex items-center justify-between shrink-0" style="border-bottom: 1px solid var(--outline-variant);">
+          <div>
+            <h3 class="font-bold text-base" style="margin: 0;">${escapeHtml(loan.title)}</h3>
+            <p class="text-xs" style="color: var(--on-surface-variant); margin: 0;">${escapeHtml(loan.source)} • هر قسط ${formatMoney(loan.amount)} تومان</p>
+          </div>
+          <button onclick="closeModal('detailModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+        </div>
+        <div class="p-4 overflow-y-auto space-y-2">
+          ${schedule.map(item => `
+            <div onclick="toggleInLoanDetail('${loan.id}', ${item.index}, ${item.isPaid})" class="v-inset flex items-center justify-between cursor-pointer" style="background-color: ${item.isPaid ? `var(--positive-bg)` : `var(--surface-container-low)`};">
+              <div class="flex items-center gap-3">
+                <div class="w-6 h-6 rounded flex items-center justify-center" style="background-color: ${item.isPaid ? `var(--tertiary)` : `var(--background)`}; color: ${item.isPaid ? `var(--on-primary)` : `var(--on-surface-variant)`}; border: 1px solid var(--outline);">
+                  ${item.isPaid ? `<i class="ph-bold ph-check text-xs"></i>` : ``}
+                </div>
+                <div>
+                  <div class="text-xs font-bold">قسط ${toPersianDigits(item.installmentNumber)} — ${toPersianDigits(item.day)} ${JALALI_MONTHS[item.month - 1]} ${toPersianDigits(item.year)}</div>
+                  <div class="text-[11px]" style="color: var(--on-surface-variant);">${item.isPaid ? `پرداخت شده` : `در انتظار پرداخت`}</div>
+                </div>
+              </div>
+              <span class="text-xs font-extrabold tabular-nums">${formatMoney(item.amount)}</span>
+            </div>
+          `).join(``)}
+        </div>
+      `;
+      document.getElementById(`detailModal`).classList.remove(`hidden`);
+    }
+
+    function toggleInLoanDetail(loanId, index, currentlyPaid) {
+      if (currentlyPaid) {
+        unpayInstallment(loanId, index);
+        openLoanDetailModal(loanId);
+      } else {
+        closeModal(`detailModal`);
+        openPayInstallmentModal(loanId, index);
+      }
+    }
+
+    /* --- Accounts --- */
+    function renderAccountColorSwatches(selectedColor) {
+      const container = document.getElementById(`accountColorPicker`);
+      document.getElementById(`accountColor`).value = selectedColor;
+      container.innerHTML = ACCOUNT_COLORS.map(c => `
+        <button type="button" onclick="renderAccountColorSwatches('${c}')" class="w-8 h-8 rounded-full border-0 cursor-pointer" style="background-color: ${c}; outline: ${selectedColor === c ? `3px solid var(--on-surface)` : `none`}; outline-offset: 2px;"></button>
+      `).join(``);
+    }
+
+    function openAccountModal(editId = null) {
+      if (editId) {
+        const acc = state.accounts.find(a => a.id === editId);
+        if (!acc) return;
+        document.getElementById(`accountModalTitle`).innerText = `ویرایش حساب بانکی`;
+        document.getElementById(`accountId`).value = acc.id;
+        document.getElementById(`accountName`).value = acc.name;
+        document.getElementById(`accountInitialBalance`).value = Number(acc.initialBalance).toLocaleString(`en-US`);
+        document.getElementById(`accountCardNumber`).value = acc.cardNumber || ``;
+        renderAccountColorSwatches(acc.color || ACCOUNT_COLORS[0]);
+      } else {
+        document.getElementById(`accountModalTitle`).innerText = `افزودن حساب یا کارت جدید`;
+        document.getElementById(`accountId`).value = ``;
+        document.getElementById(`accountName`).value = ``;
+        document.getElementById(`accountInitialBalance`).value = ``;
+        document.getElementById(`accountCardNumber`).value = ``;
+        renderAccountColorSwatches(ACCOUNT_COLORS[0]);
+      }
+      document.getElementById(`accountModal`).classList.remove(`hidden`);
+    }
+
+    function saveAccount(event) {
+      event.preventDefault();
+      const id = document.getElementById(`accountId`).value;
+      const name = document.getElementById(`accountName`).value.trim();
+      const rawBal = toEnglishDigits(document.getElementById(`accountInitialBalance`).value).replace(/[^\d]/g, ``);
+      const initialBalance = parseInt(rawBal || `0`, 10);
+      const cardNumber = document.getElementById(`accountCardNumber`).value.trim();
+      const color = document.getElementById(`accountColor`).value || ACCOUNT_COLORS[0];
+      if (!name) return;
+      if (id) {
+        const acc = state.accounts.find(a => a.id === id);
+        if (acc) Object.assign(acc, { name, initialBalance, cardNumber, color });
+        showToast(`حساب ویرایش شد`);
+      } else {
+        state.accounts.push({ id: `acc-` + Date.now(), name, initialBalance, cardNumber, color });
+        showToast(`حساب جدید اضافه شد`);
+      }
+      saveState();
+      closeModal(`accountModal`);
+      renderApp();
+    }
+
+    function deleteAccount(accId) {
+      state.accounts = state.accounts.filter(a => a.id !== accId);
+      saveState();
+      renderApp();
+      showToast(`حساب حذف شد`);
+    }
+
+    function openAccountDetailModal(accId) {
+      const acc = state.accounts.find(a => a.id === accId);
+      if (!acc) return;
+      const txs = state.transactions.filter(t =>
+        (t.type === `transfer` && (t.fromAccountId === accId || t.toAccountId === accId)) ||
+        (t.type !== `transfer` && t.accountId === accId)
+      );
+      const container = document.getElementById(`detailModalContent`);
+      container.innerHTML = `
+        <div class="px-5 py-4 flex items-center justify-between shrink-0" style="border-bottom: 1px solid var(--outline-variant);">
+          <div>
+            <h3 class="font-bold text-base" style="margin: 0;">${escapeHtml(acc.name)}</h3>
+            <p class="text-xs font-bold tabular-nums" style="color: var(--tertiary); margin: 0;">موجودی فعلی: ${formatMoney(getAccountBalance(acc.id))} تومان</p>
+          </div>
+          <button onclick="closeModal('detailModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+        </div>
+        <div class="p-4 overflow-y-auto space-y-2.5">
+          <div class="v-inset flex justify-between text-xs">
+            <span style="color: var(--on-surface-variant);">موجودی اولیه ثبت‌شده:</span>
+            <span class="font-bold tabular-nums">${formatMoney(acc.initialBalance)} تومان</span>
+          </div>
+          ${txs.length === 0 ? `<p class="text-xs text-center py-6" style="color: var(--on-surface-variant);">تراکنشی برای این حساب ثبت نشده است.</p>` : txs.map(tx => renderTransactionCard(tx, accId)).join(``)}
+        </div>
+      `;
+      document.getElementById(`detailModal`).classList.remove(`hidden`);
+    }
+
+    /* --- Transactions: Create, Edit, Delete, and Transfer --- */
+    function setTxFormType(type) {
+      document.getElementById(`txFormType`).value = type;
+      const expBtn = document.getElementById(`txTypeExpenseBtn`);
+      const incBtn = document.getElementById(`txTypeIncomeBtn`);
+      const trnBtn = document.getElementById(`txTypeTransferBtn`);
+      const stdFields = document.getElementById(`txStandardFields`);
+      const trnFields = document.getElementById(`txTransferFields`);
+      const errBox = document.getElementById(`txFormError`);
+      if (errBox) errBox.classList.add(`hidden`);
+
+      [expBtn, incBtn, trnBtn].forEach(b => {
+        if (!b) return;
+        b.style.backgroundColor = `transparent`;
+        b.style.color = `var(--on-surface-variant)`;
+      });
+
+      if (type === `expense`) {
+        expBtn.style.backgroundColor = `var(--error)`;
+        expBtn.style.color = `var(--on-error)`;
+        stdFields.classList.remove(`hidden`);
+        trnFields.classList.add(`hidden`);
+      } else if (type === `income`) {
+        incBtn.style.backgroundColor = `var(--tertiary)`;
+        incBtn.style.color = `var(--on-primary)`;
+        stdFields.classList.remove(`hidden`);
+        trnFields.classList.add(`hidden`);
+      } else {
+        trnBtn.style.backgroundColor = `var(--primary)`;
+        trnBtn.style.color = `var(--on-primary)`;
+        stdFields.classList.add(`hidden`);
+        trnFields.classList.remove(`hidden`);
+      }
+
+      if (type !== `transfer`) {
+        const filteredCats = state.categories.filter(c => c.type === type);
+        const catSel = document.getElementById(`txCategorySelect`);
+        catSel.innerHTML = filteredCats.map(c => `<option value="${c.id}">${c.emoji || ``} ${escapeHtml(c.name)}</option>`).join(``);
+        onTxFormCategoryChange();
+      }
+    }
+
+    function onTxFormCategoryChange() {
+      const catId = document.getElementById(`txCategorySelect`).value;
+      const cat = state.categories.find(c => c.id === catId);
+      const subWrap = document.getElementById(`txSubcatWrapper`);
+      const subSel = document.getElementById(`txSubcatSelect`);
+      const personWrap = document.getElementById(`txPersonWrapper`);
+
+      if (cat && Array.isArray(cat.subcategories) && cat.subcategories.length > 0) {
+        subWrap.classList.remove(`hidden`);
+        subSel.innerHTML = `<option value="">-- بدون زیردسته --</option>` +
+          cat.subcategories.map(s => `<option value="${escapeHtml(s)}">${escapeHtml(s)}</option>`).join(``);
+      } else {
+        subWrap.classList.add(`hidden`);
+        subSel.innerHTML = ``;
+      }
+
+      if (isDebtRelatedCategory(cat)) {
+        personWrap.classList.remove(`hidden`);
+        populateTxPersonSelect();
+      } else {
+        personWrap.classList.add(`hidden`);
+      }
+    }
+
+    function populateTxPersonSelect(selectedId = null) {
+      const pSel = document.getElementById(`txPersonSelect`);
+      if (!pSel) return;
+      if (state.people.length === 0) {
+        pSel.innerHTML = `<option value="">-- ابتدا یک شخص بسازید --</option>`;
+      } else {
+        pSel.innerHTML = state.people.map(p => `<option value="${p.id}">${escapeHtml(p.name)}</option>`).join(``);
+        if (selectedId) pSel.value = selectedId;
+      }
+    }
+
+    function toggleQuickNewPerson() {
+      const box = document.getElementById(`quickNewPersonBox`);
+      if (box) box.classList.toggle(`hidden`);
+    }
+
+    function saveQuickPerson() {
+      const input = document.getElementById(`quickNewPersonName`);
+      const name = input ? input.value.trim() : ``;
+      if (!name) return;
+      const newP = { id: `person-` + Date.now(), name, note: `` };
+      state.people.push(newP);
+      saveState();
+      populateTxPersonSelect(newP.id);
+      input.value = ``;
+      document.getElementById(`quickNewPersonBox`).classList.add(`hidden`);
+      showToast(`«${name}» اضافه شد`);
+    }
+
+    function populateAccountDropdownsForTx() {
+      const opts = state.accounts.map(a => `<option value="${a.id}">${escapeHtml(a.name)} (${formatMoney(getAccountBalance(a.id))} ت)</option>`).join(``);
+      document.getElementById(`txAccountSelect`).innerHTML = opts;
+      document.getElementById(`txFromAccountSelect`).innerHTML = opts;
+      document.getElementById(`txToAccountSelect`).innerHTML = opts;
+      if (state.accounts.length > 1) {
+        document.getElementById(`txToAccountSelect`).value = state.accounts[1].id;
+      }
+    }
+
+    function openTransactionModal(defaultType = `expense`, preselectedPersonId = null) {
+      if (state.accounts.length === 0) {
+        showToast(`ابتدا حداقل یک حساب بانکی ایجاد کنید`, `error`);
+        openAccountModal();
+        return;
+      }
+      if (defaultType === `transfer` && state.accounts.length < 2) {
+        showToast(`برای انتقال بین حساب‌ها حداقل ۲ حساب بانکی لازم است`, `error`);
+        return;
+      }
+      document.getElementById(`transactionModalTitle`).innerText = `ثبت تراکنش جدید`;
+      document.getElementById(`txSubmitBtn`).innerText = `ثبت تراکنش`;
+      document.getElementById(`txEditId`).value = ``;
+      document.getElementById(`txAmount`).value = ``;
+      document.getElementById(`txNote`).value = ``;
+      document.getElementById(`txDay`).value = TODAY.day;
+      document.getElementById(`txMonth`).value = TODAY.month;
+      document.getElementById(`txYear`).value = TODAY.year;
+      document.getElementById(`txFormError`).classList.add(`hidden`);
+
+      populateAccountDropdownsForTx();
+      setTxFormType(defaultType);
+
+      if (preselectedPersonId && defaultType !== `transfer`) {
+        const debtCat = state.categories.find(c => c.type === defaultType && isDebtRelatedCategory(c));
+        if (debtCat) {
+          document.getElementById(`txCategorySelect`).value = debtCat.id;
+          onTxFormCategoryChange();
+          populateTxPersonSelect(preselectedPersonId);
+        }
+      }
+      document.getElementById(`transactionModal`).classList.remove(`hidden`);
+    }
+
+    function openEditTransactionModal(txId) {
+      const tx = state.transactions.find(t => t.id === txId);
+      if (!tx) return;
+      closeModal(`detailModal`);
+      document.getElementById(`transactionModalTitle`).innerText = `ویرایش تراکنش`;
+      document.getElementById(`txSubmitBtn`).innerText = `ذخیره تغییرات`;
+      document.getElementById(`txEditId`).value = tx.id;
+      document.getElementById(`txAmount`).value = Number(tx.amount).toLocaleString(`en-US`);
+      document.getElementById(`txNote`).value = tx.note || ``;
+      document.getElementById(`txDay`).value = tx.day;
+      document.getElementById(`txMonth`).value = tx.month;
+      document.getElementById(`txYear`).value = tx.year;
+      document.getElementById(`txFormError`).classList.add(`hidden`);
+
+      populateAccountDropdownsForTx();
+      setTxFormType(tx.type);
+
+      if (tx.type === `transfer`) {
+        if (tx.fromAccountId) document.getElementById(`txFromAccountSelect`).value = tx.fromAccountId;
+        if (tx.toAccountId) document.getElementById(`txToAccountSelect`).value = tx.toAccountId;
+      } else {
+        if (tx.accountId) document.getElementById(`txAccountSelect`).value = tx.accountId;
+        if (tx.categoryId) document.getElementById(`txCategorySelect`).value = tx.categoryId;
+        onTxFormCategoryChange();
+        if (tx.subcategory) document.getElementById(`txSubcatSelect`).value = tx.subcategory;
+        if (tx.personId) populateTxPersonSelect(tx.personId);
+      }
+
+      document.getElementById(`transactionModal`).classList.remove(`hidden`);
+    }
+
+    function saveTransaction(event) {
+      event.preventDefault();
+      const editId = document.getElementById(`txEditId`).value;
+      const type = document.getElementById(`txFormType`).value;
+      const rawAmt = toEnglishDigits(document.getElementById(`txAmount`).value).replace(/[^\d]/g, ``);
+      const amount = parseInt(rawAmt, 10);
+      const day = parseInt(document.getElementById(`txDay`).value, 10);
+      const month = parseInt(document.getElementById(`txMonth`).value, 10);
+      const year = parseInt(document.getElementById(`txYear`).value, 10);
+      const note = document.getElementById(`txNote`).value.trim();
+      const errBox = document.getElementById(`txFormError`);
+
+      if (!amount || amount <= 0) {
+        errBox.innerText = `مبلغ معتبر وارد کنید.`;
+        errBox.classList.remove(`hidden`);
+        return;
+      }
+
+      let txPayload = null;
+      if (type === `transfer`) {
+        const fromAccountId = document.getElementById(`txFromAccountSelect`).value;
+        const toAccountId = document.getElementById(`txToAccountSelect`).value;
+        if (!fromAccountId || !toAccountId) {
+          errBox.innerText = `حساب مبدأ و مقصد را انتخاب کنید.`;
+          errBox.classList.remove(`hidden`);
+          return;
+        }
+        if (fromAccountId === toAccountId) {
+          errBox.innerText = `حساب مبدأ و مقصد نمی‌توانند یکسان باشند.`;
+          errBox.classList.remove(`hidden`);
+          return;
+        }
+        txPayload = { type: `transfer`, amount, fromAccountId, toAccountId, accountId: null, categoryId: null, subcategory: ``, personId: null, year, month, day, note };
+      } else {
+        const accountId = document.getElementById(`txAccountSelect`).value;
+        const categoryId = document.getElementById(`txCategorySelect`).value;
+        const subcategory = document.getElementById(`txSubcatSelect`).value || ``;
+        if (!accountId || !categoryId) {
+          errBox.innerText = `حساب و دسته‌بندی را انتخاب کنید.`;
+          errBox.classList.remove(`hidden`);
+          return;
+        }
+        const cat = state.categories.find(c => c.id === categoryId);
+        let personId = null;
+        if (isDebtRelatedCategory(cat)) {
+          personId = document.getElementById(`txPersonSelect`).value;
+          if (!personId) {
+            errBox.innerText = `برای تراکنش قرض، طرف حساب را انتخاب یا ثبت کنید.`;
+            errBox.classList.remove(`hidden`);
+            return;
+          }
+        }
+        txPayload = { type, amount, accountId, categoryId, subcategory, personId, fromAccountId: null, toAccountId: null, year, month, day, note };
+      }
+
+      if (editId) {
+        const existing = state.transactions.find(t => t.id === editId);
+        if (existing) {
+          Object.assign(existing, txPayload);
+          showToast(`تراکنش با موفقیت ویرایش شد`);
+        }
+      } else {
+        state.transactions.unshift({ id: `tx-` + Date.now(), ...txPayload });
+        showToast(type === `transfer` ? `انتقال وجه با موفقیت ثبت شد` : `تراکنش با موفقیت ثبت شد`);
+      }
+
+      saveState();
+      closeModal(`transactionModal`);
+      renderApp();
+    }
+
+    function deleteTransaction(txId) {
+      state.transactions = state.transactions.filter(t => t.id !== txId);
+      saveState();
+      closeModal(`detailModal`);
+      renderApp();
+      showToast(`تراکنش حذف شد`);
+    }
+
+    /* --- Categories & Subcategories --- */
+    let newCatSelectedColor = CATEGORY_COLORS[0];
+    let editingCategoryId = null;
+    let editingCategoryColor = CATEGORY_COLORS[0];
+    let editingSubcatState = null;
+
+    function openCategoryModal() {
+      editingCategoryId = null;
+      editingSubcatState = null;
+      renderCategoryModalBody();
+      document.getElementById(`categoryModal`).classList.remove(`hidden`);
+    }
+
+    function setNewCategoryColor(color) {
+      newCatSelectedColor = color;
+      renderCategoryModalBody();
+    }
+
+    function startEditCategory(catId) {
+      const cat = state.categories.find(c => c.id === catId);
+      if (!cat) return;
+      editingCategoryId = catId;
+      editingCategoryColor = cat.color || CATEGORY_COLORS[0];
+      renderCategoryModalBody();
+    }
+
+    function setEditCategoryColor(color) {
+      editingCategoryColor = color;
+      renderCategoryModalBody();
+    }
+
+    function cancelEditCategory() {
+      editingCategoryId = null;
+      renderCategoryModalBody();
+    }
+
+    function saveEditedCategory(catId) {
+      const cat = state.categories.find(c => c.id === catId);
+      if (!cat) return;
+      const newName = (document.getElementById(`editCatName_${catId}`)?.value || ``).trim();
+      const newEmoji = (document.getElementById(`editCatEmoji_${catId}`)?.value || ``).trim();
+      if (!newName) { showToast(`نام دسته‌بندی نمی‌تواند خالی باشد`, `error`); return; }
+      cat.name = newName;
+      cat.emoji = newEmoji || cat.emoji || `📁`;
+      cat.color = editingCategoryColor;
+      editingCategoryId = null;
+      saveState();
+      renderCategoryModalBody();
+      renderApp();
+      showToast(`دسته‌بندی به‌روزرسانی شد`);
+    }
+
+    function renderCategoryModalBody() {
+      const body = document.getElementById(`categoryModalBody`);
+      if (!body) return;
+      body.innerHTML = `
+        <form onsubmit="addNewCategory(event)" class="v-inset space-y-3">
+          <div class="font-bold text-xs" style="color: var(--primary);">ساخت دسته‌بندی جدید</div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label for="newCatType" class="v-label">نوع</label>
+              <select id="newCatType" class="v-select">
+                <option value="expense">هزینه (برداشت)</option>
+                <option value="income">درآمد (واریز)</option>
+              </select>
+            </div>
+            <div>
+              <label for="newCatEmoji" class="v-label">ایموجی</label>
+              <input type="text" id="newCatEmoji" maxlength="4" value="📌" class="v-input text-center">
+            </div>
+          </div>
+          <div>
+            <label for="newCatName" class="v-label">نام دسته‌بندی *</label>
+            <input type="text" id="newCatName" required placeholder="مثلاً: قبوض، ورزش" class="v-input">
+          </div>
+          <div>
+            <label for="newCatSubcats" class="v-label">زیردسته‌ها (با ویرگول جدا کنید)</label>
+            <input type="text" id="newCatSubcats" placeholder="مثلاً: برق، آب، اینترنت" class="v-input">
+          </div>
+          <div>
+            <span class="v-label">رنگ دسته</span>
+            <div class="flex items-center gap-2 flex-wrap">
+              ${CATEGORY_COLORS.map(c => `
+                <button type="button" onclick="setNewCategoryColor('${c}')" class="w-7 h-7 rounded-full border-0 cursor-pointer" style="background-color: ${c}; outline: ${newCatSelectedColor === c ? `2px solid var(--on-surface)` : `none`}; outline-offset: 2px;"></button>
+              `).join(``)}
+            </div>
+          </div>
+          <button type="submit" class="v-btn v-btn-primary w-full">+ افزودن دسته‌بندی</button>
+        </form>
+
+        <div class="space-y-3">
+          <div class="font-bold text-xs" style="color: var(--on-surface-variant);">دسته‌بندی‌های موجود</div>
+          ${state.categories.map(cat => {
+            const isEditing = editingCategoryId === cat.id;
+            const catColor = cat.color || `#0f7c8a`;
+            return `
+              <div class="v-card space-y-2.5">
+                ${isEditing ? `
+                  <div class="space-y-2">
+                    <div class="grid grid-cols-4 gap-2">
+                      <div>
+                        <label for="editCatEmoji_${cat.id}" class="v-label">ایموجی</label>
+                        <input type="text" id="editCatEmoji_${cat.id}" maxlength="4" value="${escapeHtml(cat.emoji || `📁`)}" class="v-input text-center">
+                      </div>
+                      <div class="col-span-3">
+                        <label for="editCatName_${cat.id}" class="v-label">نام دسته</label>
+                        <input type="text" id="editCatName_${cat.id}" value="${escapeHtml(cat.name)}" class="v-input">
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-2 flex-wrap">
+                      ${CATEGORY_COLORS.map(c => `
+                        <button type="button" onclick="setEditCategoryColor('${c}')" class="w-6 h-6 rounded-full border-0 cursor-pointer" style="background-color: ${c}; outline: ${editingCategoryColor === c ? `2px solid var(--on-surface)` : `none`}; outline-offset: 2px;"></button>
+                      `).join(``)}
+                    </div>
+                    <div class="flex gap-2">
+                      <button type="button" onclick="saveEditedCategory('${cat.id}')" class="v-btn v-btn-primary flex-1" style="min-height: 36px;">ذخیره</button>
+                      <button type="button" onclick="cancelEditCategory()" class="v-btn v-btn-ghost" style="min-height: 36px;">لغو</button>
+                    </div>
+                  </div>
+                ` : `
+                  <div class="flex items-center justify-between gap-2">
+                    <div class="flex items-center gap-2">
+                      <span class="w-8 h-8 rounded-lg flex items-center justify-center" style="background-color: ${catColor}22;">${cat.emoji || `📁`}</span>
+                      <div>
+                        <div class="font-bold text-xs flex items-center gap-1.5">
+                          <span>${escapeHtml(cat.name)}</span>
+                          <span class="w-2.5 h-2.5 rounded-full inline-block" style="background-color: ${catColor};"></span>
+                        </div>
+                        <span class="text-[10px]" style="color: ${cat.type === `income` ? `var(--tertiary)` : `var(--error)`};">${cat.type === `income` ? `درآمد` : `هزینه`}</span>
+                      </div>
+                    </div>
+                    <div class="flex items-center gap-1">
+                      <button type="button" onclick="startEditCategory('${cat.id}')" class="v-icon-btn" style="min-width: 34px; min-height: 34px;" title="ویرایش"><i class="ph-bold ph-pencil-simple text-sm"></i></button>
+                      <button type="button" onclick="deleteCategory('${cat.id}')" class="v-icon-btn danger" style="min-width: 34px; min-height: 34px;" title="حذف"><i class="ph-bold ph-trash text-sm"></i></button>
+                    </div>
+                  </div>
+                `}
+
+                <div class="flex flex-wrap gap-1.5">
+                  ${(cat.subcategories || []).map((sub, sIdx) => {
+                    const isEdSub = editingSubcatState && editingSubcatState.catId === cat.id && editingSubcatState.subIdx === sIdx;
+                    if (isEdSub) {
+                      return `
+                        <div class="flex items-center gap-1 w-full">
+                          <input type="text" id="editSubcatInput_${cat.id}_${sIdx}" value="${escapeHtml(sub)}" class="v-input" style="min-height: 34px;">
+                          <button type="button" onclick="confirmEditSubcategory('${cat.id}', ${sIdx})" class="v-btn v-btn-primary" style="min-height: 34px;">تأیید</button>
+                          <button type="button" onclick="cancelEditSubcategory()" class="v-btn v-btn-ghost" style="min-height: 34px;">لغو</button>
+                        </div>
+                      `;
+                    }
+                    return `
+                      <span class="chip" data-status="neutral">
+                        <span>${escapeHtml(sub)}</span>
+                        <button type="button" onclick="startEditSubcategory('${cat.id}', ${sIdx})" class="bg-transparent border-0 cursor-pointer p-0" style="color: var(--primary);" title="ویرایش"><i class="ph-bold ph-pencil-simple"></i></button>
+                        <button type="button" onclick="deleteSubcategory('${cat.id}', ${sIdx})" class="bg-transparent border-0 cursor-pointer p-0" style="color: var(--error);" title="حذف"><i class="ph-bold ph-x"></i></button>
+                      </span>
+                    `;
+                  }).join(``)}
+                </div>
+
+                <div class="flex items-center gap-1.5">
+                  <input type="text" id="addSubInput_${cat.id}" placeholder="نام زیردسته جدید..." class="v-input" style="min-height: 36px; font-size: 0.8rem;">
+                  <button type="button" onclick="addSubcategory('${cat.id}')" class="v-btn v-btn-secondary shrink-0" style="min-height: 36px; font-size: 0.78rem;">+ زیردسته</button>
+                </div>
+              </div>
+            `;
+          }).join(``)}
+        </div>
+      `;
+    }
+
+    function addNewCategory(event) {
+      event.preventDefault();
+      const type = document.getElementById(`newCatType`).value;
+      const emoji = document.getElementById(`newCatEmoji`).value.trim() || `📌`;
+      const name = document.getElementById(`newCatName`).value.trim();
+      const rawSubs = document.getElementById(`newCatSubcats`).value;
+      if (!name) return;
+      const subcategories = rawSubs.split(/[،,]/).map(s => s.trim()).filter(Boolean);
+      state.categories.push({ id: `cat-` + Date.now(), name, type, emoji, color: newCatSelectedColor, subcategories });
+      saveState();
+      renderCategoryModalBody();
+      renderApp();
+      showToast(`دسته‌بندی «${name}» اضافه شد`);
+    }
+
+    function deleteCategory(catId) {
+      state.categories = state.categories.filter(c => c.id !== catId);
+      state.txSelectedCategories = state.txSelectedCategories.filter(id => id !== catId);
+      saveState();
+      renderCategoryModalBody();
+      renderApp();
+      showToast(`دسته‌بندی حذف شد`);
+    }
+
+    function addSubcategory(catId) {
+      const cat = state.categories.find(c => c.id === catId);
+      const input = document.getElementById(`addSubInput_${catId}`);
+      if (!cat || !input) return;
+      const val = input.value.trim();
+      if (!val) return;
+      if (!Array.isArray(cat.subcategories)) cat.subcategories = [];
+      if (!cat.subcategories.includes(val)) cat.subcategories.push(val);
+      saveState();
+      renderCategoryModalBody();
+      showToast(`زیردسته اضافه شد`);
+    }
+
+    function startEditSubcategory(catId, subIdx) {
+      editingSubcatState = { catId, subIdx };
+      renderCategoryModalBody();
+    }
+
+    function cancelEditSubcategory() {
+      editingSubcatState = null;
+      renderCategoryModalBody();
+    }
+
+    function confirmEditSubcategory(catId, subIdx) {
+      const cat = state.categories.find(c => c.id === catId);
+      const input = document.getElementById(`editSubcatInput_${catId}_${subIdx}`);
+      if (!cat || !input) return;
+      const newName = input.value.trim();
+      if (!newName) return;
+      const oldName = cat.subcategories[subIdx];
+      cat.subcategories[subIdx] = newName;
+      state.transactions.forEach(tx => {
+        if (tx.categoryId === catId && tx.subcategory === oldName) tx.subcategory = newName;
+      });
+      editingSubcatState = null;
+      saveState();
+      renderCategoryModalBody();
+      renderApp();
+      showToast(`زیردسته و تراکنش‌های مرتبط ویرایش شدند`);
+    }
+
+    function deleteSubcategory(catId, subIdx) {
+      const cat = state.categories.find(c => c.id === catId);
+      if (!cat || !Array.isArray(cat.subcategories)) return;
+      cat.subcategories.splice(subIdx, 1);
+      saveState();
+      renderCategoryModalBody();
+      showToast(`زیردسته حذف شد`);
+    }
+
+    /* --- People --- */
+    function openPersonModal() {
+      document.getElementById(`personNameInput`).value = ``;
+      document.getElementById(`personNoteInput`).value = ``;
+      document.getElementById(`personModal`).classList.remove(`hidden`);
+    }
+
+    function savePerson(event) {
+      event.preventDefault();
+      const name = document.getElementById(`personNameInput`).value.trim();
+      const note = document.getElementById(`personNoteInput`).value.trim();
+      if (!name) return;
+      state.people.push({ id: `person-` + Date.now(), name, note });
+      saveState();
+      closeModal(`personModal`);
+      renderApp();
+      showToast(`«${name}» به لیست افراد اضافه شد`);
+    }
+
+    function openPersonDetailModal(personId) {
+      const person = state.people.find(p => p.id === personId);
+      if (!person) return;
+      const net = getPersonNetBalance(personId);
+      const txs = state.transactions.filter(t => t.personId === personId);
+      const container = document.getElementById(`detailModalContent`);
+      container.innerHTML = `
+        <div class="px-5 py-4 flex items-center justify-between shrink-0" style="border-bottom: 1px solid var(--outline-variant);">
+          <div>
+            <h3 class="font-bold text-base" style="margin: 0;">${escapeHtml(person.name)}</h3>
+            <p class="text-xs font-bold tabular-nums" style="color: ${net > 0 ? `var(--tertiary)` : net < 0 ? `var(--error)` : `var(--on-surface-variant)`}; margin: 0;">
+              ${net > 0 ? `طلب شما: ${formatMoney(net)} تومان` : net < 0 ? `بدهی شما: ${formatMoney(Math.abs(net))} تومان` : `حساب تسویه است`}
+            </p>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <button onclick="deletePerson('${person.id}')" class="v-icon-btn danger" title="حذف شخص"><i class="ph-bold ph-trash text-base"></i></button>
+            <button onclick="closeModal('detailModal')" class="v-icon-btn" aria-label="بستن"><i class="ph-bold ph-x text-lg"></i></button>
+          </div>
+        </div>
+        <div class="p-4 overflow-y-auto space-y-3">
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="closeModal('detailModal'); openTransactionModal('expense', '${person.id}')" class="v-btn v-btn-danger text-xs">+ قرض دادن / بازپرداخت</button>
+            <button onclick="closeModal('detailModal'); openTransactionModal('income', '${person.id}')" class="v-btn v-btn-primary text-xs">+ قرض گرفتن / دریافت طلب</button>
+          </div>
+          ${txs.length === 0 ? `<p class="text-xs text-center py-6" style="color: var(--on-surface-variant);">تراکنشی با این شخص ثبت نشده است.</p>` : txs.map(tx => renderTransactionCard(tx)).join(``)}
+        </div>
+      `;
+      document.getElementById(`detailModal`).classList.remove(`hidden`);
+    }
+
+    function deletePerson(personId) {
+      state.people = state.people.filter(p => p.id !== personId);
+      saveState();
+      closeModal(`detailModal`);
+      renderApp();
+      showToast(`شخص حذف شد`);
+    }
+
+    /* ==========================================================================
+       13. پشتیبان‌گیری و بازیابی کامل (JSON / Clipboard)
+    ========================================================================== */
+    function buildFullBackupPayload() {
+      return {
+        app: `GhestYar`,
+        version: 4,
+        exportedAt: new Date().toISOString(),
+        loans: state.loans,
+        accounts: state.accounts,
+        categories: state.categories,
+        transactions: state.transactions,
+        people: state.people,
+        categoriesInitialized: true
+      };
+    }
+
+    function openSettingsModal() {
+      const summaryBox = document.getElementById(`backupStatsSummary`);
+      if (summaryBox) {
+        summaryBox.innerHTML = `محتوای آماده پشتیبان‌گیری: <strong>${toPersianDigits(state.loans.length)}</strong> وام، <strong>${toPersianDigits(state.accounts.length)}</strong> حساب، <strong>${toPersianDigits(state.categories.length)}</strong> دسته‌بندی، <strong>${toPersianDigits(state.transactions.length)}</strong> تراکنش و <strong>${toPersianDigits(state.people.length)}</strong> طرف حساب.`;
+      }
+      document.getElementById(`resetConfirmArea`).innerHTML = `
+        <button onclick="showResetConfirm()" class="v-btn v-btn-danger w-full">
+          <i class="ph-bold ph-trash text-base"></i>
+          <span>پاک کردن همه داده‌ها (شروع از صفر)</span>
+        </button>
+      `;
+      document.getElementById(`settingsModal`).classList.remove(`hidden`);
+    }
+
+    function exportData() {
+      const jsonText = JSON.stringify(buildFullBackupPayload(), null, 2);
+      const filename = `ghestyar-backup-${TODAY.year}-${TODAY.month}-${TODAY.day}.json`;
+      if (window.notebookAppApi && typeof window.notebookAppApi.triggerFileDownload === `function`) {
+        window.notebookAppApi.triggerFileDownload({
+          content: jsonText,
+          contentType: `text/plain`,
+          encoding: `UTF-8`,
+          filename
+        });
+      } else {
+        const blob = new Blob([jsonText], { type: `application/json` });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement(`a`);
+        a.href = url;
+        a.download = filename;
+        a.click();
+        URL.revokeObjectURL(url);
+      }
+      showToast(`فایل پشتیبان کامل آماده دانلود شد`);
+    }
+
+    function copyBackupToClipboard() {
+      copyText(JSON.stringify(buildFullBackupPayload()), `متن کامل پشتیبان`);
+    }
+
+    function togglePasteBackupBox() {
+      document.getElementById(`pasteBackupBox`).classList.toggle(`hidden`);
+    }
+
+    function applyRestoredPayload(parsed) {
+      if (!parsed || typeof parsed !== `object`) {
+        showToast(`فرمت داده‌های پشتیبان معتبر نیست`, `error`);
+        return;
+      }
+      if (Array.isArray(parsed.loans)) state.loans = parsed.loans;
+      if (Array.isArray(parsed.accounts)) state.accounts = parsed.accounts;
+      if (Array.isArray(parsed.categories)) {
+        state.categories = parsed.categories;
+        state.categoriesInitialized = true;
+      }
+      if (Array.isArray(parsed.transactions)) state.transactions = parsed.transactions;
+      if (Array.isArray(parsed.people)) state.people = parsed.people;
+      saveState();
+      renderApp();
+      closeModal(`settingsModal`);
+      showToast(`تمام اطلاعات بازیابی شدند!`);
+    }
+
+    function importData(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          applyRestoredPayload(JSON.parse(e.target.result));
+        } catch (err) {
+          showToast(`خطا در خواندن فایل پشتیبان`, `error`);
+        }
+      };
+      reader.readAsText(file);
+      event.target.value = ``;
+    }
+
+    function importFromPastedText() {
+      const raw = document.getElementById(`pasteBackupTextarea`).value.trim();
+      if (!raw) return;
+      try {
+        applyRestoredPayload(JSON.parse(raw));
+      } catch (err) {
+        showToast(`متن واردشده معتبر نیست`, `error`);
+      }
+    }
+
+    function showResetConfirm() {
+      document.getElementById(`resetConfirmArea`).innerHTML = `
+        <div class="v-inset text-center space-y-2" style="background-color: var(--error-bg);">
+          <p class="text-xs font-bold" style="color: var(--error); margin: 0;">آیا از حذف کامل تمام اطلاعات مطمئن هستید؟</p>
+          <div class="flex gap-2">
+            <button onclick="executeResetAll()" class="v-btn flex-1" style="background-color: var(--error); color: var(--on-error);">بله، پاک شود</button>
+            <button onclick="openSettingsModal()" class="v-btn v-btn-secondary flex-1">انصراف</button>
+          </div>
+        </div>
+      `;
+    }
+
+    function executeResetAll() {
+      state.loans = [];
+      state.accounts = [{ id: `acc-` + Date.now(), name: `حساب اصلی`, initialBalance: 0, cardNumber: ``, color: `#0f7c8a` }];
+      state.transactions = [];
+      state.people = [];
+      state.categories = getDefaultCategories();
+      state.categoriesInitialized = true;
+      saveState();
+      renderApp();
+      closeModal(`settingsModal`);
+      showToast(`تمام اطلاعات پاک شد`);
+    }
+
+    /* ==========================================================================
+       14. راه‌اندازی اولیه
+    ========================================================================== */
+    document.addEventListener(`DOMContentLoaded`, async () => {
+      const dateLabel = document.getElementById(`headerTodayDate`);
+      if (dateLabel) {
+        dateLabel.innerText = `${TODAY.weekday}، ${toPersianDigits(TODAY.day)} ${JALALI_MONTHS[TODAY.month - 1]} ${toPersianDigits(TODAY.year)}`;
+      }
+      initDateDropdowns();
+      window.addEventListener(`resize`, () => {
+        if (state.layoutMode === `auto`) {
+          applyLayoutClasses();
+          renderApp();
+        }
+      });
+      await loadState();
+      switchTab(`monthly`);
+      if (window.notebookAppApi && typeof window.notebookAppApi.notifyAppReady === `function`) {
+        window.notebookAppApi.notifyAppReady();
+      }
+    });
+  </script>
+</body>
+</html>

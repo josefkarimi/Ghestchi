@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Bold wallet body centered in 66dp safe zone (21..87) -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M31,34h42c3.31,0 6,2.69 6,6v28c0,3.31 -2.69,6 -6,6H31c-3.31,0 -6,-2.69 -6,-6V40c0,-3.31 2.69,-6 6,-6z" />
+    <!-- Top card flap accent -->
+    <path
+        android:fillColor="#FFBFE6EB"
+        android:pathData="M33,28h34c2.21,0 4,1.79 4,4v2H29v-2c0,-2.21 1.79,-4 4,-4z" />
+    <!-- Wallet clasp cutout on right -->
+    <path
+        android:fillColor="#FF0F7C8A"
+        android:pathData="M61,48h18v12H61c-3.31,0 -6,-2.69 -6,-6s2.69,-6 6,-6z" />
+    <!-- Clasp dot -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M61,51.5a2.5,2.5 0 1,0 0,5a2.5,2.5 0 1,0 0,-5z" />
+    <!-- Installment progress bars inside wallet -->
+    <path
+        android:fillColor="#FF0A5560"
+        android:pathData="M33,44h16v4H33z" />
+    <path
+        android:fillColor="#FF2E7D4F"
+        android:pathData="M33,53h12v4H33z" />
+    <path
+        android:fillColor="#FF7B9198"
+        android:pathData="M33,62h18v3H33z" />
+</vector>
