@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.CloudDone
+import androidx.compose.material.icons.rounded.CloudSync
 import androidx.compose.material.icons.rounded.ContentCopy
 import androidx.compose.material.icons.rounded.ContentPaste
 import androidx.compose.material.icons.rounded.DeleteForever
@@ -39,6 +40,7 @@ import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.PersonAdd
 import androidx.compose.material.icons.rounded.UploadFile
+import androidx.compose.material.icons.rounded.WifiOff
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -75,6 +77,7 @@ import com.example.domain.FinanceCalculations
 import com.example.domain.JalaliCalendar
 import com.example.domain.JalaliDate
 import com.example.domain.Person
+import com.example.domain.SyncStatusUiState
 import com.example.domain.Transaction
 import com.example.ui.GhestYarDataBundle
 import com.example.ui.components.ColorSwatchRow
@@ -1021,8 +1024,10 @@ fun PersonLedgerSheet(
 fun SettingsBackupSheet(
     userEmail: String?,
     data: GhestYarDataBundle,
+    syncStatus: SyncStatusUiState,
     onDismiss: () -> Unit,
     onSignOut: () -> Unit,
+    onOpenSyncSheet: () -> Unit,
     onExportFileClick: () -> Unit,
     onImportFileClick: () -> Unit,
     onCopyJsonClick: () -> Unit,
@@ -1059,14 +1064,14 @@ fun SettingsBackupSheet(
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Rounded.CloudDone,
+                        imageVector = if (syncStatus.isOnline) Icons.Rounded.CloudDone else Icons.Rounded.WifiOff,
                         contentDescription = null,
-                        tint = ext.positive,
+                        tint = if (syncStatus.isOnline) ext.positive else MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(28.dp)
                     )
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "حساب ابری متصل است",
+                            text = if (syncStatus.isOnline) "حساب ابری متصل است" else "حالت آفلاین (بدون اینترنت)",
                             style = MaterialTheme.typography.titleSmall,
                             color = MaterialTheme.colorScheme.onSurface
                         )
@@ -1092,6 +1097,18 @@ fun SettingsBackupSheet(
                         Spacer(modifier = Modifier.width(4.dp))
                         Text("خروج")
                     }
+                }
+                Spacer(modifier = Modifier.height(10.dp))
+                OutlinedButton(
+                    onClick = onOpenSyncSheet,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("settings_open_sync_button")
+                ) {
+                    Icon(Icons.Rounded.CloudSync, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(modifier = Modifier.width(6.dp))
+                    Text("بررسی و مقایسه داده‌ها با سرور")
                 }
             }
 

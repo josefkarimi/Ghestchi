@@ -7,7 +7,9 @@ import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -19,12 +21,14 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.EventNote
@@ -32,12 +36,17 @@ import androidx.compose.material.icons.automirrored.rounded.ReceiptLong
 import androidx.compose.material.icons.rounded.AccountBalanceWallet
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.BarChart
+import androidx.compose.material.icons.rounded.CloudDone
+import androidx.compose.material.icons.rounded.CloudSync
+import androidx.compose.material.icons.rounded.CloudUpload
 import androidx.compose.material.icons.rounded.CreditCard
 import androidx.compose.material.icons.rounded.DarkMode
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.Group
 import androidx.compose.material.icons.rounded.LightMode
 import androidx.compose.material.icons.rounded.Settings
+import androidx.compose.material.icons.rounded.WarningAmber
+import androidx.compose.material.icons.rounded.WifiOff
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -56,6 +65,7 @@ import androidx.compose.material3.NavigationRailItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
@@ -83,6 +93,8 @@ import com.example.domain.InstallmentItem
 import com.example.domain.JalaliCalendar
 import com.example.domain.Loan
 import com.example.domain.Person
+import com.example.domain.SyncBadgeStatus
+import com.example.domain.SyncStatusUiState
 import com.example.domain.Transaction
 import com.example.ui.components.VitalsCard
 import com.example.ui.screens.AccountsScreen
@@ -100,6 +112,7 @@ import com.example.ui.sheets.PayInstallmentSheet
 import com.example.ui.sheets.PersonEditorSheet
 import com.example.ui.sheets.PersonLedgerSheet
 import com.example.ui.sheets.SettingsBackupSheet
+import com.example.ui.sheets.SyncComparisonSheet
 import com.example.ui.sheets.TransactionDraftPreset
 import com.example.ui.sheets.TransactionEditorSheet
 import com.example.ui.theme.LocalGhestYarColors
@@ -121,6 +134,7 @@ private sealed interface ActiveSheet {
     data object PersonEditor : ActiveSheet
     data class PersonLedger(val personId: String) : ActiveSheet
     data object SettingsBackup : ActiveSheet
+    data object SyncStatus : ActiveSheet
 }
 
 private sealed interface PendingDelete {
@@ -139,6 +153,7 @@ fun GhestYarApp(
 ) {
     val controls by viewModel.controls.collectAsStateWithLifecycle()
     val cloudState by viewModel.cloudState.collectAsStateWithLifecycle()
+    val syncStatus by viewModel.syncStatus.collectAsStateWithLifecycle()
     val isDarkTheme by viewModel.isDarkTheme.collectAsStateWithLifecycle()
     val ext = LocalGhestYarColors.current
     val context = LocalContext.current
@@ -158,7 +173,7 @@ fun GhestYarApp(
         { value, toastMsg ->
             val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager
             if (clipboard != null) {
-                clipboard.setPrimaryClip(ClipData.newPlainText("GhestYar", value))
+                clipboard.setPrimaryClip(ClipData.newPlainText("GhestChi", value))
                 viewModel.emitMessage(toastMsg)
             }
         }
@@ -313,7 +328,7 @@ fun GhestYarApp(
                                 }
                                 Column {
                                     Text(
-                                        text = "قسط‌یار",
+                                        text = "قسطچی",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.ExtraBold,
                                         maxLines = 1
@@ -329,6 +344,10 @@ fun GhestYarApp(
                             }
                         },
                         actions = {
+                            TopBarSyncStatusPill(
+                                syncStatus = syncStatus,
+                                onClick = { activeSheet = ActiveSheet.SyncStatus }
+                            )
                             IconButton(
                                 onClick = { viewModel.toggleTheme() },
                                 modifier = Modifier
@@ -814,14 +833,18 @@ fun GhestYarApp(
             SettingsBackupSheet(
                 userEmail = userEmail,
                 data = currentBundle,
+                syncStatus = syncStatus,
                 onDismiss = { activeSheet = null },
                 onSignOut = {
                     activeSheet = null
                     onSignOut()
                 },
+                onOpenSyncSheet = {
+                    activeSheet = ActiveSheet.SyncStatus
+                },
                 onExportFileClick = {
                     val today = controls.today
-                    val fileName = "ghestyar-backup-${today.year}-${today.month}-${today.day}.json"
+                    val fileName = "ghestchi-backup-${today.year}-${today.month}-${today.day}.json"
                     exportFileLauncher.launch(fileName)
                 },
                 onImportFileClick = {
@@ -840,6 +863,17 @@ fun GhestYarApp(
                         activeSheet = null
                     }
                 }
+            )
+        }
+
+        ActiveSheet.SyncStatus -> {
+            SyncComparisonSheet(
+                syncState = syncStatus,
+                onDismiss = { activeSheet = null },
+                onCheckWithServer = { viewModel.checkWithServer(autoTriggered = false) },
+                onSmartMergeNewest = { viewModel.resolveWithSmartMerge() },
+                onUseServerData = { viewModel.resolveWithServerData() },
+                onPushLocalData = { viewModel.resolveWithLocalData() }
             )
         }
 
@@ -934,6 +968,66 @@ private fun ConfirmDeleteDialog(
         }
     )
 }
+
+@Composable
+private fun TopBarSyncStatusPill(
+    syncStatus: SyncStatusUiState,
+    onClick: () -> Unit
+) {
+    val ext = LocalGhestYarColors.current
+    val (bg, fg, icon, label) = when (syncStatus.badgeStatus) {
+        SyncBadgeStatus.OFFLINE -> Quad(ext.errorBg, MaterialTheme.colorScheme.error, Icons.Rounded.WifiOff, "آفلاین")
+        SyncBadgeStatus.CHECKING -> Quad(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.onPrimaryContainer, Icons.Rounded.CloudSync, "بررسی...")
+        SyncBadgeStatus.PENDING_UPLOAD -> Quad(ext.warningBg, ext.warningText, Icons.Rounded.CloudUpload, "در انتظار")
+        SyncBadgeStatus.SERVER_DIFF_FOUND -> Quad(MaterialTheme.colorScheme.primaryContainer, MaterialTheme.colorScheme.primary, Icons.Rounded.WarningAmber, "تغییر سرور")
+        SyncBadgeStatus.SYNCED -> Quad(ext.positiveBg, ext.positiveText, Icons.Rounded.CloudDone, "به‌روز")
+    }
+
+    Box(
+        modifier = Modifier
+            .heightIn(min = 48.dp)
+            .clip(CircleShape)
+            .clickable(onClick = onClick)
+            .padding(horizontal = 4.dp)
+            .testTag("sync_status_badge"),
+        contentAlignment = Alignment.Center
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = bg,
+            border = BorderStroke(1.dp, fg.copy(alpha = 0.28f))
+        ) {
+            Row(
+                modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(5.dp)
+            ) {
+                if (syncStatus.badgeStatus == SyncBadgeStatus.CHECKING) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.size(14.dp),
+                        color = fg,
+                        strokeWidth = 2.dp
+                    )
+                } else {
+                    Icon(
+                        imageVector = icon,
+                        contentDescription = label,
+                        tint = fg,
+                        modifier = Modifier.size(15.dp)
+                    )
+                }
+                Text(
+                    text = label,
+                    style = MaterialTheme.typography.labelMedium,
+                    color = fg,
+                    maxLines = 1
+                )
+            }
+        }
+    }
+}
+
+private data class Quad<A, B, C, D>(val first: A, val second: B, val third: C, val fourth: D)
 
 private fun GhestYarTab.icon(): ImageVector = when (this) {
     GhestYarTab.MONTHLY -> Icons.AutoMirrored.Rounded.EventNote

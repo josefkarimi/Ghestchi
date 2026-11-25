@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.data.FirestoreGhestYarRepository
+import com.example.data.NetworkConnectivityMonitor
 import com.example.data.ThemePreferencesRepository
 import com.example.domain.Account
 import com.example.domain.BackupJsonCodec
@@ -14,9 +15,12 @@ import com.example.domain.JalaliCalendar
 import com.example.domain.JalaliDate
 import com.example.domain.Loan
 import com.example.domain.Person
+import com.example.domain.SyncMergeEngine
+import com.example.domain.SyncStatusUiState
 import com.example.domain.Transaction
 import com.google.firebase.firestore.FirebaseFirestoreException
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -75,6 +79,7 @@ data class GhestYarUiControls(
 class GhestYarViewModel(
     private val repository: FirestoreGhestYarRepository,
     private val themePrefs: ThemePreferencesRepository,
+    private val networkMonitor: NetworkConnectivityMonitor,
     private val currentUserId: String
 ) : ViewModel() {
 
@@ -102,20 +107,43 @@ class GhestYarViewModel(
     private val _messages = MutableSharedFlow<String>(extraBufferCapacity = 8)
     val messages: SharedFlow<String> = _messages.asSharedFlow()
 
+    private val _syncStatus = MutableStateFlow(
+        SyncStatusUiState(isOnline = networkMonitor.isCurrentlyOnline())
+    )
+    val syncStatus: StateFlow<SyncStatusUiState> = _syncStatus
+
     val cloudState: StateFlow<CloudSyncState> = combine(
         repository.observeLoans(currentUserId),
         repository.observeAccounts(currentUserId),
         repository.observeCategories(currentUserId),
         repository.observeTransactions(currentUserId),
         repository.observePeople(currentUserId)
-    ) { loans, accounts, categories, transactions, people ->
+    ) { loansSnap, accountsSnap, categoriesSnap, transactionsSnap, peopleSnap ->
+        val anyFromCache = loansSnap.isFromCache ||
+            accountsSnap.isFromCache ||
+            categoriesSnap.isFromCache ||
+            transactionsSnap.isFromCache ||
+            peopleSnap.isFromCache
+        val anyPending = loansSnap.hasPendingWrites ||
+            accountsSnap.hasPendingWrites ||
+            categoriesSnap.hasPendingWrites ||
+            transactionsSnap.hasPendingWrites ||
+            peopleSnap.hasPendingWrites
+
+        _syncStatus.update { cur ->
+            cur.copy(
+                isFromCache = anyFromCache,
+                hasPendingWrites = anyPending
+            )
+        }
+
         CloudSyncState.Ready(
             GhestYarDataBundle(
-                loans = loans,
-                accounts = accounts,
-                categories = categories,
-                transactions = transactions,
-                people = people
+                loans = loansSnap.items,
+                accounts = accountsSnap.items,
+                categories = categoriesSnap.items,
+                transactions = transactionsSnap.items,
+                people = peopleSnap.items
             )
         ) as CloudSyncState
     }
@@ -145,10 +173,179 @@ class GhestYarViewModel(
                 emitMessage("خطا در بارگذاری اولیه: ${err.localizedMessage ?: "نامشخص"}")
             }
         }
+
+        viewModelScope.launch {
+            var previouslyOnline = networkMonitor.isCurrentlyOnline()
+            networkMonitor.isOnline.collect { online ->
+                _syncStatus.update { cur ->
+                    cur.copy(
+                        isOnline = online,
+                        lastCheckError = if (online) null else cur.lastCheckError
+                    )
+                }
+                if (online && !previouslyOnline) {
+                    delay(1200L)
+                    checkWithServer(autoTriggered = true)
+                }
+                previouslyOnline = online
+            }
+        }
     }
 
     private fun currentData(): GhestYarDataBundle =
         (cloudState.value as? CloudSyncState.Ready)?.data ?: GhestYarDataBundle()
+
+    private fun GhestYarDataBundle.toBackupPayload(): BackupPayload = BackupPayload(
+        loans = loans,
+        accounts = accounts,
+        categories = categories,
+        transactions = transactions,
+        people = people
+    )
+
+    fun checkWithServer(autoTriggered: Boolean = false) {
+        if (!_syncStatus.value.isOnline) {
+            if (!autoTriggered) {
+                _syncStatus.update {
+                    it.copy(lastCheckError = "اتصال اینترنت برقرار نیست. لطفاً پس از اتصال دوباره بررسی کنید.")
+                }
+            }
+            return
+        }
+        if (_syncStatus.value.isCheckingServer || _syncStatus.value.isResolvingConflict) return
+
+        viewModelScope.launch {
+            _syncStatus.update { it.copy(isCheckingServer = true, lastCheckError = null) }
+            val localPayload = currentData().toBackupPayload()
+            val result = repository.fetchServerPayload(currentUserId)
+            result.onSuccess { serverPayload ->
+                val now = System.currentTimeMillis()
+                val report = SyncMergeEngine.compare(localPayload, serverPayload, now)
+                _syncStatus.update {
+                    it.copy(
+                        isCheckingServer = false,
+                        lastCheckedAtMillis = now,
+                        lastCheckError = null,
+                        comparisonReport = report
+                    )
+                }
+                if (autoTriggered) {
+                    if (!report.isInSync) {
+                        emitMessage("اینترنت متصل شد؛ تفاوت‌هایی با سرور پیدا شد. برای بررسی روی نشانگر وضعیت بزنید.")
+                    }
+                } else {
+                    if (report.isInSync) {
+                        emitMessage("داده‌های دستگاه با سرور کاملاً یکسان و به‌روز است")
+                    } else {
+                        emitMessage("مقایسه با سرور انجام شد؛ تفاوت‌ها آماده تصمیم‌گیری هستند")
+                    }
+                }
+            }.onFailure { err ->
+                _syncStatus.update {
+                    it.copy(
+                        isCheckingServer = false,
+                        lastCheckError = if (autoTriggered) null else "خطا در ارتباط با سرور: ${err.localizedMessage ?: "نامشخص"}"
+                    )
+                }
+                if (!autoTriggered) {
+                    emitMessage("خطا در بررسی اطلاعات سرور")
+                }
+            }
+        }
+    }
+
+    fun resolveWithSmartMerge(onDone: () -> Unit = {}) {
+        val report = _syncStatus.value.comparisonReport ?: return
+        if (!_syncStatus.value.isOnline || _syncStatus.value.isResolvingConflict) return
+        viewModelScope.launch {
+            _syncStatus.update { it.copy(isResolvingConflict = true, lastCheckError = null) }
+            val merged = SyncMergeEngine.smartMergeNewest(report.localPayload, report.serverPayload)
+            repository.reconcileWithTarget(currentUserId, merged, report.serverPayload)
+                .onSuccess {
+                    val now = System.currentTimeMillis()
+                    val cleanReport = SyncMergeEngine.compare(merged, merged, now)
+                    _syncStatus.update {
+                        it.copy(
+                            isResolvingConflict = false,
+                            lastCheckedAtMillis = now,
+                            comparisonReport = cleanReport
+                        )
+                    }
+                    emitMessage("ترکیب هوشمند با جدیدترین نسخه هر مورد با موفقیت انجام شد!")
+                    onDone()
+                }
+                .onFailure { err ->
+                    _syncStatus.update {
+                        it.copy(
+                            isResolvingConflict = false,
+                            lastCheckError = "خطا در ترکیب هوشمند: ${err.localizedMessage ?: "نامشخص"}"
+                        )
+                    }
+                }
+        }
+    }
+
+    fun resolveWithServerData(onDone: () -> Unit = {}) {
+        val report = _syncStatus.value.comparisonReport ?: return
+        if (!_syncStatus.value.isOnline || _syncStatus.value.isResolvingConflict) return
+        viewModelScope.launch {
+            _syncStatus.update { it.copy(isResolvingConflict = true, lastCheckError = null) }
+            val currentLocal = currentData().toBackupPayload()
+            repository.reconcileWithTarget(currentUserId, report.serverPayload, currentLocal)
+                .onSuccess {
+                    repository.fetchServerPayload(currentUserId)
+                    val now = System.currentTimeMillis()
+                    val cleanReport = SyncMergeEngine.compare(report.serverPayload, report.serverPayload, now)
+                    _syncStatus.update {
+                        it.copy(
+                            isResolvingConflict = false,
+                            lastCheckedAtMillis = now,
+                            comparisonReport = cleanReport
+                        )
+                    }
+                    emitMessage("داده‌های دستگاه با آخرین نسخه سرور هماهنگ شد!")
+                    onDone()
+                }
+                .onFailure { err ->
+                    _syncStatus.update {
+                        it.copy(
+                            isResolvingConflict = false,
+                            lastCheckError = "خطا در دریافت نسخه سرور: ${err.localizedMessage ?: "نامشخص"}"
+                        )
+                    }
+                }
+        }
+    }
+
+    fun resolveWithLocalData(onDone: () -> Unit = {}) {
+        val report = _syncStatus.value.comparisonReport ?: return
+        if (!_syncStatus.value.isOnline || _syncStatus.value.isResolvingConflict) return
+        viewModelScope.launch {
+            _syncStatus.update { it.copy(isResolvingConflict = true, lastCheckError = null) }
+            repository.reconcileWithTarget(currentUserId, report.localPayload, report.serverPayload)
+                .onSuccess {
+                    val now = System.currentTimeMillis()
+                    val cleanReport = SyncMergeEngine.compare(report.localPayload, report.localPayload, now)
+                    _syncStatus.update {
+                        it.copy(
+                            isResolvingConflict = false,
+                            lastCheckedAtMillis = now,
+                            comparisonReport = cleanReport
+                        )
+                    }
+                    emitMessage("داده‌های این دستگاه به عنوان آخرین نسخه در سرور ثبت شدند!")
+                    onDone()
+                }
+                .onFailure { err ->
+                    _syncStatus.update {
+                        it.copy(
+                            isResolvingConflict = false,
+                            lastCheckError = "خطا در ارسال داده‌های دستگاه: ${err.localizedMessage ?: "نامشخص"}"
+                        )
+                    }
+                }
+        }
+    }
 
     fun emitMessage(text: String) {
         _messages.tryEmit(text)

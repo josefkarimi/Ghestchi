@@ -118,7 +118,7 @@ fun AuthScreen(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.AccountBalanceWallet,
-                    contentDescription = "لوگوی قسط‌یار",
+                    contentDescription = "لوگوی قسطچی",
                     tint = MaterialTheme.colorScheme.onPrimary,
                     modifier = Modifier.size(42.dp)
                 )
@@ -129,7 +129,7 @@ fun AuthScreen(
                 verticalArrangement = Arrangement.spacedBy(6.dp)
             ) {
                 Text(
-                    text = "قسط‌یار",
+                    text = "قسطچی",
                     style = MaterialTheme.typography.displaySmall,
                     color = MaterialTheme.colorScheme.onSurface
                 )

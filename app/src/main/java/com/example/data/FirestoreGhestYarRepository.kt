@@ -5,10 +5,12 @@ import com.example.R
 import com.example.domain.Account
 import com.example.domain.BackupPayload
 import com.example.domain.Category
+import com.example.domain.CollectionSnapshot
 import com.example.domain.InitialSeedData
 import com.example.domain.JalaliCalendar
 import com.example.domain.Loan
 import com.example.domain.Person
+import com.example.domain.SyncMergeEngine
 import com.example.domain.Transaction
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
@@ -18,8 +20,12 @@ import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.FirebaseFirestoreException
+import com.google.firebase.firestore.MetadataChanges
+import com.google.firebase.firestore.Source
 import com.google.firebase.firestore.snapshots
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
@@ -57,13 +63,19 @@ class FirestoreGhestYarRepository(
         userId: String,
         collectionName: String,
         clazz: Class<T>
-    ): Flow<List<T>> = flow {
+    ): Flow<CollectionSnapshot<T>> = flow {
         val uid = requireUserId(userId)
         val path = "users/$uid/$collectionName"
         emitAll(
             userDoc(uid).collection(collectionName)
-                .snapshots()
-                .map { snap -> snap.toObjects(clazz, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE) }
+                .snapshots(MetadataChanges.INCLUDE)
+                .map { snap ->
+                    CollectionSnapshot(
+                        items = snap.toObjects(clazz, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE),
+                        isFromCache = snap.metadata.isFromCache,
+                        hasPendingWrites = snap.metadata.hasPendingWrites()
+                    )
+                }
                 .catch { error ->
                     val firestoreError = generateSequence(error) { it.cause }
                         .filterIsInstance<FirebaseFirestoreException>()
@@ -78,20 +90,147 @@ class FirestoreGhestYarRepository(
         )
     }
 
-    fun observeLoans(userId: String): Flow<List<Loan>> =
+    fun observeLoans(userId: String): Flow<CollectionSnapshot<Loan>> =
         observeSubcollection(userId, "loans", Loan::class.java)
 
-    fun observeAccounts(userId: String): Flow<List<Account>> =
+    fun observeAccounts(userId: String): Flow<CollectionSnapshot<Account>> =
         observeSubcollection(userId, "accounts", Account::class.java)
 
-    fun observeCategories(userId: String): Flow<List<Category>> =
+    fun observeCategories(userId: String): Flow<CollectionSnapshot<Category>> =
         observeSubcollection(userId, "categories", Category::class.java)
 
-    fun observeTransactions(userId: String): Flow<List<Transaction>> =
+    fun observeTransactions(userId: String): Flow<CollectionSnapshot<Transaction>> =
         observeSubcollection(userId, "transactions", Transaction::class.java)
 
-    fun observePeople(userId: String): Flow<List<Person>> =
+    fun observePeople(userId: String): Flow<CollectionSnapshot<Person>> =
         observeSubcollection(userId, "people", Person::class.java)
+
+    suspend fun fetchServerPayload(userId: String): Result<BackupPayload> {
+        val path = "users/$userId"
+        return try {
+            val uid = requireUserId(userId)
+            val payload = coroutineScope {
+                val loansDef = async {
+                    loansCol(uid).get(Source.SERVER).await()
+                        .toObjects(Loan::class.java, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)
+                }
+                val accountsDef = async {
+                    accountsCol(uid).get(Source.SERVER).await()
+                        .toObjects(Account::class.java, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)
+                }
+                val categoriesDef = async {
+                    categoriesCol(uid).get(Source.SERVER).await()
+                        .toObjects(Category::class.java, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)
+                }
+                val transactionsDef = async {
+                    transactionsCol(uid).get(Source.SERVER).await()
+                        .toObjects(Transaction::class.java, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)
+                }
+                val peopleDef = async {
+                    peopleCol(uid).get(Source.SERVER).await()
+                        .toObjects(Person::class.java, DocumentSnapshot.ServerTimestampBehavior.ESTIMATE)
+                }
+                BackupPayload(
+                    loans = loansDef.await(),
+                    accounts = accountsDef.await(),
+                    categories = categoriesDef.await(),
+                    transactions = transactionsDef.await(),
+                    people = peopleDef.await()
+                )
+            }
+            Result.success(payload)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            handleFirestoreError(e, OperationType.GET, path)
+            Result.failure(e)
+        }
+    }
+
+    suspend fun reconcileWithTarget(
+        userId: String,
+        target: BackupPayload,
+        currentServer: BackupPayload
+    ): Result<Unit> {
+        val path = "users/$userId"
+        return try {
+            val uid = requireUserId(userId)
+            val ops = mutableListOf<BatchOp>()
+
+            val serverLoans = currentServer.loans.associateBy { it.id }
+            val targetLoanIds = target.loans.map { it.id }.toSet()
+            currentServer.loans.filter { it.id !in targetLoanIds }.forEach {
+                ops.add(BatchOp.Delete(loansCol(uid).document(it.id)))
+            }
+            target.loans.forEach { loan ->
+                val existing = serverLoans[loan.id]
+                when {
+                    existing == null -> ops.add(BatchOp.Set(loansCol(uid).document(loan.id), loanCreateMap(loan)))
+                    !SyncMergeEngine.loanSame(loan, existing) -> ops.add(BatchOp.Update(loansCol(uid).document(loan.id), loanUpdateMap(loan)))
+                }
+            }
+
+            val serverAccounts = currentServer.accounts.associateBy { it.id }
+            val targetAccountIds = target.accounts.map { it.id }.toSet()
+            currentServer.accounts.filter { it.id !in targetAccountIds }.forEach {
+                ops.add(BatchOp.Delete(accountsCol(uid).document(it.id)))
+            }
+            target.accounts.forEach { acc ->
+                val existing = serverAccounts[acc.id]
+                when {
+                    existing == null -> ops.add(BatchOp.Set(accountsCol(uid).document(acc.id), accountCreateMap(acc)))
+                    !SyncMergeEngine.accountSame(acc, existing) -> ops.add(BatchOp.Update(accountsCol(uid).document(acc.id), accountUpdateMap(acc)))
+                }
+            }
+
+            val serverCategories = currentServer.categories.associateBy { it.id }
+            val targetCategoryIds = target.categories.map { it.id }.toSet()
+            currentServer.categories.filter { it.id !in targetCategoryIds }.forEach {
+                ops.add(BatchOp.Delete(categoriesCol(uid).document(it.id)))
+            }
+            target.categories.forEach { cat ->
+                val existing = serverCategories[cat.id]
+                when {
+                    existing == null -> ops.add(BatchOp.Set(categoriesCol(uid).document(cat.id), categoryCreateMap(cat)))
+                    !SyncMergeEngine.categorySame(cat, existing) -> ops.add(BatchOp.Update(categoriesCol(uid).document(cat.id), categoryUpdateMap(cat)))
+                }
+            }
+
+            val serverPeople = currentServer.people.associateBy { it.id }
+            val targetPersonIds = target.people.map { it.id }.toSet()
+            currentServer.people.filter { it.id !in targetPersonIds }.forEach {
+                ops.add(BatchOp.Delete(peopleCol(uid).document(it.id)))
+            }
+            target.people.forEach { person ->
+                val existing = serverPeople[person.id]
+                when {
+                    existing == null -> ops.add(BatchOp.Set(peopleCol(uid).document(person.id), personCreateMap(person)))
+                    !SyncMergeEngine.personSame(person, existing) -> ops.add(BatchOp.Update(peopleCol(uid).document(person.id), personUpdateMap(person)))
+                }
+            }
+
+            val serverTxs = currentServer.transactions.associateBy { it.id }
+            val targetTxIds = target.transactions.map { it.id }.toSet()
+            currentServer.transactions.filter { it.id !in targetTxIds }.forEach {
+                ops.add(BatchOp.Delete(transactionsCol(uid).document(it.id)))
+            }
+            target.transactions.forEach { tx ->
+                val existing = serverTxs[tx.id]
+                when {
+                    existing == null -> ops.add(BatchOp.Set(transactionsCol(uid).document(tx.id), transactionCreateMap(tx)))
+                    !SyncMergeEngine.txSame(tx, existing) -> ops.add(BatchOp.Update(transactionsCol(uid).document(tx.id), transactionUpdateMap(tx)))
+                }
+            }
+
+            commitChunked(ops)
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            handleFirestoreError(e, OperationType.WRITE, path)
+            Result.failure(e)
+        }
+    }
 
     suspend fun ensureInitialDataSeeded(userId: String): Result<Boolean> {
         val path = "users/$userId"
@@ -559,6 +698,12 @@ class FirestoreGhestYarRepository(
         "name" to person.name.trim().take(100),
         "note" to person.note.trim().take(300),
         "createdAt" to FieldValue.serverTimestamp(),
+        "updatedAt" to FieldValue.serverTimestamp()
+    )
+
+    private fun personUpdateMap(person: Person): Map<String, Any> = mapOf(
+        "name" to person.name.trim().take(100),
+        "note" to person.note.trim().take(300),
         "updatedAt" to FieldValue.serverTimestamp()
     )
 

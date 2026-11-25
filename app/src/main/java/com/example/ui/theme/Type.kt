@@ -9,20 +9,41 @@ import androidx.compose.ui.unit.sp
 import com.example.R
 
 val VazirmatnFontFamily = FontFamily(
-    Font(R.font.vazirmatn, FontWeight.Light),
-    Font(R.font.vazirmatn, FontWeight.Normal),
-    Font(R.font.vazirmatn, FontWeight.Medium),
-    Font(R.font.vazirmatn, FontWeight.SemiBold),
-    Font(R.font.vazirmatn, FontWeight.Bold),
-    Font(R.font.vazirmatn, FontWeight.ExtraBold)
+    Font(R.font.vazirmatn_regular, FontWeight.Light),
+    Font(R.font.vazirmatn_regular, FontWeight.Normal),
+    Font(R.font.vazirmatn_medium, FontWeight.Medium),
+    Font(R.font.vazirmatn_semibold, FontWeight.SemiBold),
+    Font(R.font.vazirmatn_bold, FontWeight.Bold),
+    Font(R.font.vazirmatn_extrabold, FontWeight.ExtraBold)
 )
 
 val AppTypography = Typography(
+    displayLarge = TextStyle(
+        fontFamily = VazirmatnFontFamily,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 36.sp,
+        lineHeight = 44.sp,
+        fontFeatureSettings = "tnum"
+    ),
+    displayMedium = TextStyle(
+        fontFamily = VazirmatnFontFamily,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 32.sp,
+        lineHeight = 40.sp,
+        fontFeatureSettings = "tnum"
+    ),
     displaySmall = TextStyle(
         fontFamily = VazirmatnFontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 28.sp,
         lineHeight = 36.sp,
+        fontFeatureSettings = "tnum"
+    ),
+    headlineLarge = TextStyle(
+        fontFamily = VazirmatnFontFamily,
+        fontWeight = FontWeight.ExtraBold,
+        fontSize = 24.sp,
+        lineHeight = 32.sp,
         fontFeatureSettings = "tnum"
     ),
     headlineMedium = TextStyle(
@@ -43,13 +64,13 @@ val AppTypography = Typography(
         fontFamily = VazirmatnFontFamily,
         fontWeight = FontWeight.ExtraBold,
         fontSize = 18.sp,
-        lineHeight = 24.sp
+        lineHeight = 26.sp
     ),
     titleMedium = TextStyle(
         fontFamily = VazirmatnFontFamily,
         fontWeight = FontWeight.Bold,
         fontSize = 16.sp,
-        lineHeight = 22.sp
+        lineHeight = 24.sp
     ),
     titleSmall = TextStyle(
         fontFamily = VazirmatnFontFamily,

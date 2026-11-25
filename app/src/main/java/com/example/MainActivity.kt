@@ -19,6 +19,7 @@ import com.example.auth.AuthScreen
 import com.example.auth.authStateFlow
 import com.example.auth.signOut
 import com.example.data.FirestoreGhestYarRepository
+import com.example.data.NetworkConnectivityMonitor
 import com.example.data.ThemePreferencesRepository
 import com.example.ui.GhestYarApp
 import com.example.ui.GhestYarViewModel
@@ -70,6 +71,7 @@ private fun GhestYarRoot(
                         GhestYarViewModel(
                             repository = FirestoreGhestYarRepository(appContext),
                             themePrefs = themePrefs,
+                            networkMonitor = NetworkConnectivityMonitor(appContext),
                             currentUserId = currentUser.uid
                         )
                     }
